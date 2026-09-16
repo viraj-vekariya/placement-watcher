@@ -1,0 +1,62 @@
+                                                                           VEKARIYA VIRAJ PARBATBHAI | 23AE10041
+
+                                                                           B.Tech.(Hons.) in AEROSPACE ENGINEERING
+                                                                     MICRO SPL. in ARTIFICIAL INTELLIGENCE AND APPLICATIONS
+                                                                                                             EDUCATION
+Year               Degree/Exam                                                                          Institute                                                                                                     CGPA/Marks
+2027               B.TECH                                                                               IIT Kharagpur                                                                                                 8.24 / 10
+2023               Class XII, GSEB                                                                      Ashadeep Ucchatar Madhyamic Shala                                                                             80.90%
+2021               Class X, GSEB                                                                        Ashadeep International School                                                                                 90.00%
+                                                                                                            INTERNSHIPS
+IIT Kharagpur SRIC | Research Intern under Prof. Vinay Yadav, VGSOM                                                                                  Jun'26 - Jul'26
+• Consolidated three decades of district agriculture, price, irrigation and input-use data into a 17,234-record panel across 591 districts on a 56-script Python ETL
+• Estimated that a 10% urea price rise cuts district nitrogen use by roughly 8%, and replicated that estimate under a separate soil-instrumented IV design
+• Quantified three national fertiliser reforms by an event study on district nitrogen use: subsidy reform +9.4%, neem coating -1.2% and benefit transfer +7.5%
+Work2Hire | Founder's Office Intern                                                                                                               May'26 - Aug'26
+• Defined a canonical taxonomy over 30+ events and rebuilt the acquisition funnel in SQL window functions, replacing the topline signups with cohort reviews
+• Located 38% of all drop-off in one onboarding step on a single acquisition channel; the fix raised activation from 41% to 56% on a held-out control group
+• Tested the flagship BM25 ATS scorer on 1,000+ resumes against real shortlisting with Spearman and logistic regression; only keyword coverage held
+AnTim Technologies | Technology Associate                                                                                                          Aug'25 - Nov'25
+• Cut the mean relative estimate error from 0.58 to 0.34 on 58 past projects under leave-one-out testing, with a TF-IDF k-NN model ahead of gradient boosting
+• Reduced projects overrunning by more than 10% from 42% to 21% in back-testing, by quoting at a calibrated P80 band that held 79% empirical coverage
+• Traced 46% of rework hours to requirement gaps by classifying 900 tracker defects into three named causes, then wrote a 12-point pre-sign-off checklist
+                                                                                                               PROJECTS
+AI Annotation and Served Inference | label by hand or automate? | sentence-transformers, distillation                                              Jul'26 - Aug'26
+• Ran a four-arm ablation over 13,083 real support messages across 77 intents, where MiniLM kNN hit 89% and the alpha sweep gave the LLM no weight at all
+• Calibrated with temperature scaling, cutting ECE from 0.25 to 0.02, then auto-resolved 86.9% of all tickets at 95% precision on the held-out evaluation set
+• Distilled a 29,645-parameter logistic student at 98.9% of teacher accuracy, at a cost of $0.000284 per 1,000 items against $83.33 to label the same by hand
+Urban Demand Warehouse | where should the fleet be tomorrow? | PySpark, Parquet, LightGBM                                                         Nov'25 - Dec'25
+• Landed 39.2M of 41.2M NYC TLC trips on a watermarked incremental DuckDB ETL, reconciled to the cent against a full PySpark rebuild of the monthly totals
+• Reported a negative result: LightGBM lost to the historical hour-of-week mean at MAE 2.676 vs 2.670, so the pipeline ships that baseline and not the model
+• Took the value from allocation rather than forecasting: capacity-constrained top-k zone assignment on that baseline lifted backtested revenue by 17.8%
+Fair-Lending Decomposition | is this pay gap defensible? | SQL, DuckDB, econometrics, bootstrap                                             Sep'25 - Oct'25
+• Modelled 48,842 census records into a SQL star schema clearing all 8 reconciliation checks, then screened a 19.45pp gap at an adverse impact ratio of 0.36
+• Hand-coded Oaxaca-Blinder in twofold, threefold and Neumark forms with 800-replicate bootstrap intervals, explaining 81% to 99% of that observed pay gap
+• Returned INVESTIGATE on a 3.65pp residual whose interval excluded zero, while a German Credit replication could not act on its own noisier 5.5pp gap
+                                                                                                    SKILLS AND EXPERTISE
+Analysis: Python, SQL, statistics, causal inference, experimentation, econometrics, forecasting, shift-share design, bootstrapping, Spearman, IRLS, LOOCV
+Data Engineering: DuckDB, PySpark, Parquet, pandas, NumPy, ETL, dimensional modelling (star schemas), window functions, CTEs, data checks, Excel, GCS
+ML, BI and Deployment: scikit-learn, LightGBM, PyTorch, Transformers, calibration, temperature scaling, abstention gating, cross-validation, BM25, FastAPI
+Coursework: Artificial Intelligence: Foundations and Applications, AI/ML for Robot Autonomy, Programming and Data Structures (Theory and Laboratory)
+
+                                                                                         ENTREPRENEURIAL EXPERIENCES
+Co-Founder | TEVIX (SensoPack) | 3rd in Agriculture track, Platinum Jubilee Innovation Challenge, INR 5L funding commitment                   Apr'26 - Aug'26
+• Built SensoPack, an AI-IoT cold-chain tag combining biodegradable biofilms, biomarker sensing and on-device TinyML on an INR 30-120 NFC bill of materials
+• Achieved 92% predictive shelf-life accuracy on the tag, replacing static printed expiry dates with live freshness estimates and projecting a 30% cut in waste
+• Addressed an INR 61,000 crore fisheries market and INR 30,000 crore of annual livestock losses, making freshness uncertainty the wedge into fresh retailers
+                                                                                             COMPETITION/CONFERENCE
+General Championship Data Analytics, IIT Kharagpur | Winner, Gold Medal                                                                      Feb'25 - Mar'25
+• Engineered a preprocessing pipeline over 1.05L+ records with KNN and MICE imputation, feature engineering and outlier handling before any modelling
+• Derived 15+ business KPIs including CAC and churn, then ran channel-level EDA on correlation heatmaps, Pareto analysis and sales-time trend segments
+• Reallocated the marketing budget with log-linear modelling, ridge regression and a gradient-ascent optimiser, lifting the modelled return on spend to 128%
+Gold Medal, Open IIT Case Study Competition | QPo Cabs, IIT Kharagpur                                                                        Oct'24 - Nov'24
+• Optimised user acquisition to a 25% conversion rate at an INR 35 CAC, returning 3x on campaign spend across the modelled growth plan for the full launch
+• Projected breakeven inside 30 days on 500+ new users a month, at INR 280 of annual revenue per user across the retained base of active monthly riders
+• Benchmarked against Ola on surge pricing and rider safety, then scaled an INR 2.5K campaign across 40+ hubs for a projected 30% lift in female ridership
+                                                                                            POSITIONS OF RESPONSIBILITY
+Public Relations Chair | Technology Students' Gymkhana, IIT Kharagpur                                                                       Jun'25 - Jun'26
+• Orchestrated a 5-day round-the-clock SIH Hardware Edition on an INR 1.2 crore budget, coordinating 450+ participants, mentors, volunteers and vendors
+• Launched the SoAC Portal for 70+ student societies, centralising discovery; drove recruitment and event updates for 16,000+ students and 30,000+ alumni
+• Secured 40+ institutional collaborations and sessions, sharing 1,000+ internship and career openings; grew TSG social reach 30% YoY to 40,000+ followers
+All the information stated above is self-declared by the student. If the information is found to be false or misleading at any stage, the student is liable to face appropriate disciplinary consequences, as applicable. Created On.:Mon Sep 14
+

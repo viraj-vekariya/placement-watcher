@@ -1,0 +1,62 @@
+                                                                           VEKARIYA VIRAJ PARBATBHAI | 23AE10041
+
+                                                                           B.Tech.(Hons.) in AEROSPACE ENGINEERING
+                                                                     MICRO SPL. in ARTIFICIAL INTELLIGENCE AND APPLICATIONS
+                                                                                                             EDUCATION
+Year               Degree/Exam                                                                          Institute                                                                                                     CGPA/Marks
+2027               B.TECH                                                                               IIT Kharagpur                                                                                                 8.24 / 10
+2023               Class XII, GSEB                                                                      Ashadeep Ucchatar Madhyamic Shala                                                                             80.90%
+2021               Class X, GSEB                                                                        Ashadeep International School                                                                                 90.00%
+                                                                                                            INTERNSHIPS
+Work2Hire | Founder's Office Intern                                                                                                              May'26 - Aug'26
+• Converted 34 campus and community conversations into 9 activated partnerships and 2,400 student registrations through a stage-gated outreach funnel
+• Owned 4 product launches end to end on a scored priority queue, replacing the ad-hoc founder asks with checklists, comms sequencing and written retros
+• Cut support volume from 31 to 18 tickets per 1,000 users by clustering 600 customer queries into leading intents and answering the top 5 inside the product
+Solvify Tech | Product Intern                                                                                                                     May'25 - Jun'25
+• Traced a third of stalled new accounts to one data-import step, mapping the onboarding friction through 15 customer interviews across the SME user base
+• Reduced steps to first value from 11 to 6 by comparing 6 competing products on onboarding, pricing and setup time, and recommending a shorter path
+• Prioritised a 22-item product backlog into written PRDs with acceptance criteria, ranking each on reach, impact and effort so 7 shipped in the next cycle
+Shivfit Wellness | Digital Product and Community Ops Intern                                                                                       Mar'26 - Aug'26
+• Ran 10 cohorts of three paid programs on TagMango for 1,000+ members, generating INR 80L+ in revenue and lifting program completion 15 points to 61%
+• Automated weekly content scheduling from 5 hours to under 1 across two parallel batches, moving the entire workflow into a 3,300-line Chrome extension
+Instarto | Research Intern                                                                                                                         Jul'25 - Aug'25
+• Evaluated 10+ AI-infrastructure startups including Getbee on business model, traction, funding stage and financials, with SWOT and market positioning work
+• Narrowed ~120 investors to a 25-name shortlist across 3 live mandates, scoring thesis fit, stage and cheque size against the firm's seed to Series B pipeline
+Khageshvara Aviation Technology | Talon E-VTOL Project Member                                                                                     Aug'24 - Dec'24
+• Led an 8-member team building the Talon eVTOL to a 5 kg payload and a 20 km range, pairing 4 fixed lift rotors with 2 tilting rotors for the cruise transition
+• Converged 5 airframe iterations and 2 competing tilt-rotor architectures into a single build-ready design, modular in 3 sections for field transport and repair
+                                                                                         ENTREPRENEURIAL EXPERIENCES
+Co-Founder | TEVIX (SensoPack) | 3rd in Agriculture track, Platinum Jubilee Innovation Challenge, INR 5L funding commitment                   Apr'26 - Aug'26
+• Built SensoPack, an AI-IoT cold-chain tag combining biodegradable biofilms, biomarker sensing and on-device TinyML on an INR 30-120 NFC bill of materials
+• Achieved 92% predictive shelf-life accuracy on the tag, replacing static printed expiry dates with live freshness estimates and projecting a 30% cut in waste
+• Addressed an INR 61,000 crore fisheries market and INR 30,000 crore of annual livestock losses, making freshness uncertainty the wedge into fresh retailers
+Founding Team Manager and Senior Executive | Innovation and Incubation Cell, IIT Kharagpur                                                    May'25 - Jul'26
+• Managed a 50+ member team across the operations, outreach, sponsorship, media relations and entrepreneurship verticals of the Cell through the year
+• Oversaw a cumulative INR 6L+ budget across flagship campus events engaging 200+ participants, owning permissions, logistics and execution end to end
+• Assembled a startup-VC pipeline connecting 50+ startups with 10+ VCs, mentors and curated cohorts, plus a Next Wave course opened free to the campus
+                                                                                             COMPETITION/CONFERENCE
+Inter IIT Tech Meet 14.0, Adobe | Reimagining Photoshop as the AI editor of 2030                                                                  Oct'25 - Dec'25
+• Mapped a $2.56B mobile and desktop editing market growing at 4.4% CAGR, scanning 4 categories of editors and naming the gap each one had left open
+• Designed retroactive edit sliders so revising an earlier instruction no longer discards every later edit, the destructive behaviour users hit in AI editors now
+• Took the app from hand wireframes to a 12-screen Figma system, cutting a cluttered landing page down to two clear workflows plus a visual recents tray
+Gold Medal, Open IIT Case Study Competition | QPo Cabs, IIT Kharagpur                                                                             Oct'24 - Nov'24
+• Modelled unit economics at INR 35 CAC against INR 280 annual revenue per user, clearing a 3x ROI and breakeven within 30 days on 500+ monthly users
+• Projected 25% trial-to-paid conversion on a targeted acquisition push, onboarding 500+ riders a month toward rapid scale in a contested mobility market
+• Proposed surge-pricing and rider-safety features benchmarked against Ola, tying each one back to a named retention problem rather than a feature gap
+                                                                                            POSITIONS OF RESPONSIBILITY
+Public Relations Chair | Technology Students' Gymkhana, IIT Kharagpur                                                                         Jun'25 - Jun'26
+• Orchestrated a 5-day round-the-clock SIH Hardware Edition on an INR 1.2 crore budget, coordinating 450+ participants, mentors, volunteers and vendors
+• Launched the SoAC Portal for 70+ student societies, centralising discovery; drove recruitment and event updates for 16,000+ students and 30,000+ alumni
+• Secured 40+ institutional collaborations and sessions, sharing 1,000+ internship and career openings; grew TSG social reach 30% YoY to 40,000+ followers
+Founding Member and Sponsorship Head | Gujarat Cultural Association, IIT Kharagpur                                                             Jul'24 - Jun'26
+• Founded and ran the sponsorship vertical at the Gujarat Cultural Association, clearing 100%+ of target every edition and underwriting its flagship events
+• Grew Garba Night sponsorship revenue 5x and attendance 2x over the two editions through targeted outreach, publicity and named brand partnerships
+• Directed 60+ students through end-to-end delivery of Garba Night and Food Fest, owning permissions, budgeting, publicity and on-ground event delivery
+                                                                                           EXTRA CURRICULAR ACTIVITIES
+Societies: Former member of Aerial Robotics Kharagpur, the Aerospace Engineering Society and the Students' Branding and Relations Cell at the institute
+Cultural and Sports: Placed 3rd in Illumination in third year, 2nd in Rangoli in first year, and won a gold medal playing hockey for MS Hall in the inter-hall GC
+Technical: Competed across several GC technical events, taking 3 medals in two years - gold in Data Analytics and bronze in both OpenSoft and Ad Design
+Mentorship: Mentored first-year students on campus, and separately guided 350+ JEE aspirants through exam preparation and strategy at Physics Wallah
+Social impact: Completed 100+ hours of NSS community service, teaching students from underserved communities and running local clean-up campaigns
+All the information stated above is self-declared by the student. If the information is found to be false or misleading at any stage, the student is liable to face appropriate disciplinary consequences, as applicable. Created On.:Mon Sep 14
+

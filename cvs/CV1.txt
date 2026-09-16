@@ -1,0 +1,62 @@
+                                                                           VEKARIYA VIRAJ PARBATBHAI | 23AE10041
+
+                                                                           B.Tech.(Hons.) in AEROSPACE ENGINEERING
+                                                                     MICRO SPL. in ARTIFICIAL INTELLIGENCE AND APPLICATIONS
+                                                                                                             EDUCATION
+Year               Degree/Exam                                                                          Institute                                                                                                     CGPA/Marks
+2027               B.TECH                                                                               IIT Kharagpur                                                                                                 8.24 / 10
+2023               Class XII, GSEB                                                                      Ashadeep Ucchatar Madhyamic Shala                                                                             80.90%
+2021               Class X, GSEB                                                                        Ashadeep International School                                                                                 90.00%
+                                                                                                            INTERNSHIPS
+Work2Hire | Founder's Office Intern                                                                                                          May'26 - Aug'26
+• Lifted parse success on multi-column resumes from 71% to 92%, rebuilding the ingestion pipeline around word-box geometry and x-coordinate clustering
+• Halved LLM cost per resume at unchanged 0.89 extraction accuracy, by resolving common fields from gazetteer rules and cache before the constrained call
+• Shipped the ATS scorer as a versioned REST API returning an explainable per-section breakdown, ranking BM25 term coverage against each job description
+Digikestra | Software Development Intern                                                                                                      Dec'25 - Mar'26
+• Ended duplicate orders and cut failed payment transactions by 35%, keying API writes on idempotency tokens so retries deduplicate and never double-post
+• Tripled page speed across the six busiest pages, cutting p95 from 2.1s to 0.7s by collapsing N+1 queries and adding the composite indexes EXPLAIN called for
+• Lowered bugs reaching production from 4 to 1 per release, adding 48 boundary-value regression tests over 7 modules, each pinned to the root cause of a bug
+AnTim Technologies | Technology Associate                                                                                                    Aug'25 - Nov'25
+• Generated 7 in 10 modules ready to merge unedited, using a schema-constrained LLM to turn a client spec into typed JSON that code templates build from
+• Consolidated the 30% of code duplicated across 12 past client projects into 5 reusable Angular and .NET libraries, removing repeat work from new builds
+• Shortened first delivery on new projects from 9 days to 4, gating CI on the contract tests every generated module had to compile and pass before review
+                                                                                                               PROJECTS
+Pathfinder Agent | can an LLM replace a real graph solver? | RAG, pgvector, NetworkX, Python                                                     Apr'26 - May'26
+• Surfaced a circular dependency in Apache Airflow using Kahn, iterative Tarjan, Dijkstra and A* over a live 411-package PyPI graph, cross-checked with NetworkX
+• Benchmarked the RAG agent against those exact solvers and ruled out the context truncation theory: all 19 failing cases fit inside 512 tokens, explaining none
+• Correlated plan validity with prompt length at r = -0.79, and then reshaped the tool output format to lift validity from 58% to 80% against the solver as truth
+Forge Pipeline | can a model ship like code, and where does it break? | PyTorch, TorchScript, GitHub Actions                                               Mar'26
+• Automated retraining and deployment of a 468K-parameter CNN to 93.4% test accuracy inside GitHub Actions, stamping every build with its dataset fingerprint
+• Gated every release on the TorchScript export matching PyTorch to 5 decimal places across 512 samples, with SHA-256 artefact checks and a one-call rollback
+• Broke the endpoint deliberately to find its ceiling: p99 crossed the 100ms mark at 1,100+ requests/s, where Little's Law held to 0.04%, confirming saturation
+Sentinel Gateway | how much speed does dropping to C++ actually buy? | C++17, pybind11, FastAPI, Java                                              Jan'26 - Feb'26
+• Accelerated the rate limiter 2.45x over Python in C++17/pybind11, then found per-call GIL release ran 12x slower than holding it and batched to recover that
+• Fronted Python and Java services behind per-tier quotas and circuit breakers, correctly shedding the 45 over-quota requests inside a single 60-request burst
+• Cut false positives to zero with a MAD-based robust z-score detector, scoring over a sustained window rather than per request, widening that separation 6x
+                                                                                                    SKILLS AND EXPERTISE
+Languages: Python, C++, Java, JavaScript, TypeScript, SQL | CS: data structures and algorithms, system design, OOP, concurrency, testing, debugging, Git
+Backend, Cloud and DevOps: FastAPI, REST APIs, microservices, PostgreSQL, pgvector, Docker, Kubernetes, AWS, Azure, GCP, Linux, CI/CD (GitHub Actions)
+Machine Learning and Generative AI: PyTorch, TensorFlow, scikit-learn, pandas, deep learning, NLP, computer vision, LLMs, RAG, embeddings, AI agents
+Coursework: Artificial Intelligence: Foundations and Applications, AI/ML for Robot Autonomy, Programming and Data Structures (Theory and Laboratory)
+
+                                                                                         ENTREPRENEURIAL EXPERIENCES
+Co-Founder | TEVIX (SensoPack) | 3rd in Agriculture track, Platinum Jubilee Innovation Challenge, INR 5L funding commitment                   Apr'26 - Aug'26
+• Built SensoPack, an AI-IoT cold-chain tag combining biodegradable biofilms, biomarker sensing and on-device TinyML on an INR 30-120 NFC bill of materials
+• Achieved 92% predictive shelf-life accuracy on the tag, replacing static printed expiry dates with live freshness estimates and projecting a 30% cut in waste
+• Addressed an INR 61,000 crore fisheries market and INR 30,000 crore of annual livestock losses, making freshness uncertainty the wedge into fresh retailers
+                                                                                             COMPETITION/CONFERENCE
+Bronze Medal, OpenSoft | Inter-Hall General Championship | React, Zustand, WebSockets                                                                   Mar'26
+• Sustained 80+ trades per second in a real-time trading UI, cutting React re-renders with narrow Zustand selectors under a continuous live market update load
+• Merged REST history with buffered WebSocket streams into one continuous series, so that live candles extended the chart seamlessly on Lightweight Charts
+• Eliminated race conditions across multi-store synchronisation under sustained load using the Zustand subscribeWithSelector middleware and scoped reads
+Inter IIT Tech Meet 14.0, Adobe | Reimagining Photoshop as the AI editor of 2030                                                                Oct'25 - Dec'25
+• Enabled earlier edits to be re-tuned without regenerating the image, by caching per-instruction velocity vectors and linearly interpolating them at inference
+• Chained SAM 3 segmentation, 2% mask dilation and edge-shadow adjustment, LaMa inpainting and FLUX.2 recomposition into one-gesture drag repositioning
+• Selected FLUX.2 over FLUX.1 and SDXL on prompt adherence, and Qwen3-VL-8B over CLIP and a 337-class classifier on hand-stroke and attribute tracking too
+                                                                                            POSITIONS OF RESPONSIBILITY
+Public Relations Chair | Technology Students' Gymkhana, IIT Kharagpur                                                                       Jun'25 - Jun'26
+• Orchestrated a 5-day round-the-clock SIH Hardware Edition on an INR 1.2 crore budget, coordinating 450+ participants, mentors, volunteers and vendors
+• Launched the SoAC Portal for 70+ student societies, centralising discovery; drove recruitment and event updates for 16,000+ students and 30,000+ alumni
+• Secured 40+ institutional collaborations and sessions, sharing 1,000+ internship and career openings; grew TSG social reach 30% YoY to 40,000+ followers
+All the information stated above is self-declared by the student. If the information is found to be false or misleading at any stage, the student is liable to face appropriate disciplinary consequences, as applicable. Created On.:Mon Sep 14
+
