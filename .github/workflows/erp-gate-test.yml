@@ -1,0 +1,19 @@
+name: ERP cloud-IP gate test
+on:
+  workflow_dispatch:
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe ERP from GitHub runner IP
+        run: |
+          echo "Runner public IP:"; curl -s https://api.ipify.org; echo
+          echo "=== 1) GET ERP login page ==="
+          code=$(curl -s -c cookies.txt -A "Mozilla/5.0" -o login.html -w "%{http_code} -> %{url_effective}" "https://erp.iitkgp.ac.in/IIT_ERP3/")
+          echo "HTTP $code"
+          echo "loginForm present: $(grep -c 'id=.loginForm' login.html)"
+          echo "=== 2) POST getSecurityQues.htm (user_id) from this IP ==="
+          curl -s -b cookies.txt -A "Mozilla/5.0" --data "user_id=23AE10041" \
+            "https://erp.iitkgp.ac.in/SSOAdministration/getSecurityQues.htm" -w "\n[HTTP %{http_code}]\n" | head -c 400
+          echo
+          echo "=== VERDICT: if a security question text appears above, the ERP works from a cloud IP ==="
