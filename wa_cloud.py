@@ -87,10 +87,23 @@ def setup_with_phone_code(timeout_s=480):
             print("could not find 'log in with phone number' link:", e)
             ctx.close(); return False
         page.wait_for_timeout(2500)
+        # WhatsApp auto-selects the country by the SERVER's IP geolocation, not
+        # the target number's actual country -- on a US-based CI runner this
+        # silently defaults to the US, which then misreads the whole number.
+        # Fix: type the FULL international number with a leading '+' directly
+        # into the phone field -- the widget auto-detects and self-corrects the
+        # country from the '+91' prefix regardless of whatever it defaulted to,
+        # which is far more robust than trying to drive the country dropdown UI.
         try:
-            box = page.locator('input[type="text"]').first
-            box.click()
-            box.fill(MY_NUMBER)
+            box = page.locator('input[data-testid="phone-number-input"]')
+            box.click(timeout=10000)
+            box.fill("")
+            box.type("+" + MY_NUMBER, delay=30)
+            page.wait_for_timeout(1200)
+            cur = page.evaluate("document.body.innerText")
+            if "+91" not in cur:
+                print("WARNING: country did not auto-correct to +91 as expected")
+                print(cur[:300])
         except Exception as e:
             print("could not fill phone number field:", e)
             ctx.close(); return False
