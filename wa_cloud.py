@@ -86,14 +86,33 @@ def setup_with_phone_code(timeout_s=480):
         except Exception as e:
             print("could not find 'log in with phone number' link:", e)
             ctx.close(); return False
-        page.wait_for_timeout(1500)
+        page.wait_for_timeout(2500)
         try:
             box = page.locator('input[type="text"]').first
             box.click()
             box.fill(MY_NUMBER)
-            page.get_by_role("button", name="Next", exact=False).click(timeout=10000)
         except Exception as e:
-            print("could not submit phone number:", e)
+            print("could not fill phone number field:", e)
+            ctx.close(); return False
+        page.wait_for_timeout(1000)
+        # the "Next" button may take longer to enable/render on a CI runner than
+        # it did in local testing -- try a real click first (longer timeout),
+        # then fall back to just pressing Enter in the field, which most forms
+        # (including this one) also accept as a submit trigger.
+        submitted = False
+        try:
+            page.get_by_role("button", name="Next", exact=False).click(timeout=20000)
+            submitted = True
+        except Exception as e:
+            print("'Next' button click failed, falling back to Enter key:", e)
+            try:
+                box.press("Enter")
+                submitted = True
+            except Exception as e2:
+                print("Enter-key fallback also failed:", e2)
+        if not submitted:
+            print("--- page text for diagnosis ---")
+            print(page.evaluate("document.body.innerText")[:600])
             ctx.close(); return False
         page.wait_for_timeout(3000)
         full_text = page.evaluate("document.body.innerText")
