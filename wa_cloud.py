@@ -44,10 +44,36 @@ def is_logged_in(headless=True, timeout_ms=20000):
         return ok
 
 
-def setup_with_phone_code(timeout_s=300):
+def _extract_code(full_text):
+    """The 8-char code renders as one character per line (e.g.
+    "Z\\n3\\nB\\n9\\n-\\nY\\nA\\nX\\nL") -- find the run of single-char lines right
+    after the "(edit)" marker and join them into e.g. "Z3B9-YAXL"."""
+    lines = [l.strip() for l in full_text.split("\n")]
+    for i, l in enumerate(lines):
+        if "(edit)" in l or "Linking WhatsApp account" in l:
+            chunk = []
+            for l2 in lines[i+1:i+15]:
+                if len(l2) == 1 and (l2.isalnum() or l2 == "-"):
+                    chunk.append(l2)
+                    if len(chunk) == 9:  # 4 chars + dash + 4 chars, exactly
+                        break
+                elif chunk:
+                    break
+            candidate = "".join(chunk)
+            import re
+            if re.match(r"^[A-Z0-9]{4}-[A-Z0-9]{4}$", candidate):
+                return candidate
+    return None
+
+
+def setup_with_phone_code(timeout_s=480):
     """Prints an 8-character linking code to stdout, then polls (up to
-    timeout_s) for the human to enter it on their phone. Prints LOGIN_OK or
-    LOGIN_TIMEOUT as the last line so the calling workflow step can branch."""
+    timeout_s) for the human to enter it on their phone. WhatsApp's linking
+    code REFRESHES every ~60s if unused -- this re-checks periodically and
+    re-prints whenever a new code appears, so a slow human-relay loop (e.g.
+    reading it off a workflow log) always has a live, usable code available.
+    Prints LOGIN_OK or LOGIN_TIMEOUT as the last line so the calling workflow
+    step can branch."""
     if not MY_NUMBER:
         print("WA_NUMBER not set"); return False
     with sync_playwright() as p:
@@ -71,34 +97,26 @@ def setup_with_phone_code(timeout_s=300):
             ctx.close(); return False
         page.wait_for_timeout(3000)
         full_text = page.evaluate("document.body.innerText")
-        # the 8-char code renders as one character per line (e.g. "Z\n3\nB\n9\n-\nY\nA\nX\nL")
-        # -- find the run of single-char lines right after the "(edit)" marker and join them.
-        lines = [l.strip() for l in full_text.split("\n")]
-        code = None
-        for i, l in enumerate(lines):
-            if "(edit)" in l or "Linking WhatsApp account" in l:
-                chunk = []
-                for l2 in lines[i+1:i+15]:
-                    if len(l2) == 1 and (l2.isalnum() or l2 == "-"):
-                        chunk.append(l2)
-                        if len(chunk) == 9:  # 4 chars + dash + 4 chars, exactly
-                            break
-                    elif chunk:
-                        break
-                candidate = "".join(chunk)
-                import re
-                m = re.match(r"^[A-Z0-9]{4}-[A-Z0-9]{4}$", candidate)
-                if m:
-                    code = candidate
-                    break
+        code = _extract_code(full_text)
         print("LINKING_CODE:", code or "NOT FOUND -- see full text below")
         if not code:
             print(full_text[:800])
             ctx.close(); return False
         print(f">>> On your phone: WhatsApp > Settings > Linked Devices > Link with phone number instead > enter {code} <<<")
+        print(">>> This code refreshes automatically every ~60s if unused -- watch this log, a NEW code will be printed each time it changes. Use whichever code is printed MOST RECENTLY. <<<")
+        last_code = code
         end = time.time() + timeout_s
         ok = False
         while time.time() < end:
+            try:
+                cur_text = page.evaluate("document.body.innerText")
+                cur_code = _extract_code(cur_text)
+                if cur_code and cur_code != last_code:
+                    last_code = cur_code
+                    print(f"LINKING_CODE (refreshed): {cur_code}")
+                    print(f">>> On your phone: enter the NEW code {cur_code} <<<")
+            except Exception:
+                pass
             try:
                 page.wait_for_selector(
                     '[aria-label="Search or start a new chat" i], [title="Search or start a new chat" i]',
