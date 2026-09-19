@@ -1,13 +1,29 @@
 {
- "last_updated": "2026-09-19T08:37:44Z",
+ "last_updated": "2026-09-19T17:18:07Z",
  "stats": {
-  "total": 843,
-  "internship": 731,
+  "total": 845,
+  "internship": 733,
   "placement": 112,
   "placement_no_ppo": 24
  },
  "categories": {
   "all": [
+   {
+    "id": "906",
+    "type": "INTERNSHIP",
+    "subject": "Shortlist",
+    "company": "SAMSUNG R&D INSTITUTE INDIA - NOIDA",
+    "notice": "PFB the interview shortlist for SAMSUNG R&D INSTITUTE INDIA - NOIDA.24CS10109\n24CS10009\n24CS10021\n24EC10038\n23EC39031\n24MA10019\n24CS10089\n23MA23003\n24EC10040\n24EC10102\n23MA25005\n24MA10042\n23EC39021\n24MA10025Further details would be communicated to the shortlisted candidates shortly.\n\nCDC, IIT Kharagpur",
+    "noticeat": "19-09-2026 21:52"
+   },
+   {
+    "id": "905",
+    "type": "INTERNSHIP",
+    "subject": "CV Submission",
+    "company": "ASSURANT",
+    "notice": "The CV submission of ASSURANT has been opened till 11:59 PM, 20th September 2026.\n\nInterested and eligible students are advised to apply within the given deadline. No further extensions will be given.\n\nCDC, IIT Kharagpur",
+    "noticeat": "19-09-2026 17:28"
+   },
    {
     "id": "904",
     "type": "INTERNSHIP",
@@ -7847,6 +7863,24 @@
   ],
   "top10_internships": [
    {
+    "id": "906",
+    "type": "INTERNSHIP",
+    "subject": "Shortlist",
+    "company": "SAMSUNG R&D INSTITUTE INDIA - NOIDA",
+    "notice": "PFB the interview shortlist for SAMSUNG R&D INSTITUTE INDIA - NOIDA.24CS10109\n24CS10009\n24CS10021\n24EC10038\n23EC39031\n24MA10019\n24CS10089\n23MA23003\n24EC10040\n24EC10102\n23MA25005\n24MA10042\n23EC39021\n24MA10025Further details would be communicated to the shortlisted candidates shortly.\n\nCDC, IIT Kharagpur",
+    "noticeat": "19-09-2026 21:52",
+    "has_download": false
+   },
+   {
+    "id": "905",
+    "type": "INTERNSHIP",
+    "subject": "CV Submission",
+    "company": "ASSURANT",
+    "notice": "The CV submission of ASSURANT has been opened till 11:59 PM, 20th September 2026.\n\nInterested and eligible students are advised to apply within the given deadline. No further extensions will be given.\n\nCDC, IIT Kharagpur",
+    "noticeat": "19-09-2026 17:28",
+    "has_download": false
+   },
+   {
     "id": "904",
     "type": "INTERNSHIP",
     "subject": "Urgent",
@@ -7916,24 +7950,6 @@
     "company": "GALK Inc. (Willings)",
     "notice": "The CV submission of GALK Inc (Willings) has been opened till 11:59 PM, 15th September 2026.\n\nInterested and eligible students are advised to apply within the given deadline. No further extensions will be given.\n\nThe students who have applied on ERP are required to complete their registration on the GALK Portal as the next step.\n\nRegistration \n\nLink: https://candidate.galk-jp.com/\n\nCandidates are required to:1. Register and log in to the GALK Portal.2. Complete the registration process, including publishing their profile after login.3. Go to the GALK Recruit section and complete the Screening Form.4. Answer all questions carefully and correctly before submitting the form.\n\nNote: Once the Screening Form is submitted, the responses cannot be reverted or modified. Candidates are therefore advised to review their answers carefully before submission.\n\nOnly the students who have applied on both ERP and the GALK Portal will be considered.\n\nCDC, IIT Kharagpur",
     "noticeat": "14-09-2026 16:20",
-    "has_download": false
-   },
-   {
-    "id": "892",
-    "type": "INTERNSHIP",
-    "subject": "Date extension",
-    "company": "NAVIGATORS SOFTWARE PVT LTD",
-    "notice": "The CV submission of NAVIGATORS SOFTWARE PVT LTD for all the roles has been extended till 11:59 PM, 14th September 2026.\n\nInterested and eligible students are advised to apply within the given deadline. No further extensions will be given.\n\nCDC, IIT Kharagpur",
-    "noticeat": "14-09-2026 16:16",
-    "has_download": false
-   },
-   {
-    "id": "891",
-    "type": "INTERNSHIP",
-    "subject": "CV Submission",
-    "company": "HP INC",
-    "notice": "The CV submission of HP Inc has been extended till 11:59 PM, 14th September 2026.\n\nInterested and eligible students are advised to apply within the given deadline. No further extensions will be given.\n\nCGPA Criterion: 7.5\n\nCDC, IIT Kharagpur",
-    "noticeat": "14-09-2026 15:12",
     "has_download": false
    }
   ]
