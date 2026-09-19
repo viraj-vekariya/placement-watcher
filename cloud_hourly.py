@@ -100,25 +100,26 @@ def main():
 
     log(f"cycle complete -- {len(new_rows)} new notice(s) this hour" if new_rows else "cycle complete -- no new notices this hour")
 
+    # user wants the FULL notice text pasted, one WhatsApp message per new
+    # notice (not a truncated company/subject summary) -- and the exact
+    # fixed phrase "No CDC update for now." when nothing new came in.
     if new_rows:
-        placement_new = [r for r in new_rows if r["type"] == "PLACEMENT" and r["subject"].upper() != "PPO"]
-        internship_new = [r for r in new_rows if r["type"] == "INTERNSHIP"]
-        ppo_new = [r for r in new_rows if r["subject"].upper() == "PPO"]
-        lines = [f"CDC update -- {now_str}", f"{len(new_rows)} new notice(s):"]
-        for r in placement_new[:6]:
-            lines.append(f"• [PLACEMENT] {r['company']} ({r['subject']})")
-        for r in internship_new[:6]:
-            lines.append(f"• [INTERNSHIP] {r['company']} ({r['subject']})")
-        if ppo_new:
-            lines.append(f"+ {len(ppo_new)} PPO notice(s)")
-        msg = "\n".join(lines)
+        sent = 0
+        for r in new_rows:
+            header = f"[{r['type']}] {r['company'] or '(no company / general notice)'} ({r['subject']})"
+            msg = f"{header}\n\n{reflow(r['notice'])}"
+            try:
+                wa_cloud.send(msg)
+                sent += 1
+            except Exception as e:
+                log(f"WhatsApp send failed for notice {r['id']} (non-fatal): {e}")
+        log(f"WhatsApp sent: {sent}/{len(new_rows)} full notice(s)")
     else:
-        msg = f"No update for now at {now_str}."
-    try:
-        wa_cloud.send(msg)
-        log(f"WhatsApp sent: {'NEW ' + str(len(new_rows)) if new_rows else 'no-update heartbeat'}")
-    except Exception as e:
-        log(f"WhatsApp send failed (non-fatal): {e}")
+        try:
+            wa_cloud.send("No CDC update for now.")
+            log("WhatsApp sent: no-update heartbeat")
+        except Exception as e:
+            log(f"WhatsApp send failed (non-fatal): {e}")
 
 
 if __name__ == "__main__":
