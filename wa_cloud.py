@@ -80,21 +80,30 @@ def setup_with_phone_code(timeout_s=480):
         ctx = _launch(p, headless=True)
         page = ctx.pages[0] if ctx.pages else ctx.new_page()
         page.goto("https://web.whatsapp.com/", timeout=30000)
-        page.wait_for_timeout(4000)
-        try:
-            page.get_by_text("Log in with phone number", exact=False).click(timeout=15000)
-        except Exception as e:
-            print("could not find 'log in with phone number' link:", e)
-            print("--- page text for diagnosis ---")
-            print(page.evaluate("document.body.innerText")[:600])
-            ctx.close(); return False
-        # a cold CI runner (fresh browser download, no local cache) can take
-        # noticeably longer to render this form than a warm local run --
-        # explicitly wait for the field to exist rather than a fixed sleep.
-        try:
-            page.wait_for_selector('input[data-testid="phone-number-input"]', timeout=20000)
-        except Exception as e:
-            print("phone number field never appeared:", e)
+        page.wait_for_timeout(6000)
+        # occasionally the first click on a cold CI runner doesn't register
+        # (page not fully interactive yet) and the phone-number panel never
+        # appears -- retry the click itself a couple of times before giving up,
+        # rather than failing the whole run on a single transient miss.
+        got_input = False
+        last_err = None
+        for attempt in range(3):
+            try:
+                page.get_by_text("Log in with phone number", exact=False).first.click(timeout=15000)
+            except Exception as e:
+                last_err = f"could not find 'log in with phone number' link: {e}"
+                page.wait_for_timeout(2000)
+                continue
+            try:
+                page.wait_for_selector('input[data-testid="phone-number-input"]', timeout=12000)
+                got_input = True
+                break
+            except Exception as e:
+                last_err = f"phone number field never appeared: {e}"
+                print(f"attempt {attempt+1}/3 failed -- {last_err}")
+                page.wait_for_timeout(2000)
+        if not got_input:
+            print(last_err)
             print("--- page text for diagnosis ---")
             print(page.evaluate("document.body.innerText")[:600])
             ctx.close(); return False
