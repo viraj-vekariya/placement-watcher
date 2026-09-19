@@ -5,17 +5,19 @@
   3. PLACEMENT_NO_PPO   -- type == PLACEMENT and subject != PPO (the agreed filter)
   4. TOP10_INTERNSHIPS  -- 10 most recent INTERNSHIP notices, with any resolvable
                            download link/file noted
-Each is written as a styled HTML file, then exported to PDF via headless Chrome
-(the established local recipe) so the deliverable is a PDF, not a web page.
+Each is written as a styled HTML file, then exported to PDF via Playwright's
+bundled Chromium (page.pdf()) -- this works identically on macOS (local) and
+the Ubuntu GitHub Actions runner, unlike shelling out to a hardcoded
+/Applications/Google Chrome.app path which only exists locally.
 """
-import html, json, re, subprocess, sys
+import html, json, re, sys
 from pathlib import Path
+from playwright.sync_api import sync_playwright
 
 BASE = Path(__file__).resolve().parent
 CACHE = BASE / "notices_cache.json"
 DOCS = BASE / "docs"
 DOCS.mkdir(exist_ok=True)
-CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 
 CSS = """
 body{font:14px/1.5 -apple-system,Helvetica,Arial,sans-serif;color:#1a1a1a;margin:0;padding:28px 34px;background:#fff}
@@ -76,14 +78,13 @@ def page(title, subtitle, rows_html):
 {rows_html}
 </body></html>"""
 
-def write_and_pdf(name, title, subtitle, rows, show_download=False):
+def write_and_pdf(browser_page, name, title, subtitle, rows, show_download=False):
     body = "\n".join(row_html(r, i+1, show_download) for i, r in enumerate(rows)) or "<p>No matching notices.</p>"
     html_path = DOCS / f"{name}.html"
     pdf_path = DOCS / f"{name}.pdf"
     html_path.write_text(page(title, subtitle, body))
-    subprocess.run([CHROME, "--headless=new", "--disable-gpu",
-                     f"--print-to-pdf={pdf_path}", "--no-pdf-header-footer",
-                     f"file://{html_path}"], check=True, capture_output=True, timeout=60)
+    browser_page.goto(f"file://{html_path}")
+    browser_page.pdf(path=str(pdf_path))
     print(f"  wrote {pdf_path.name}  ({len(rows)} rows)")
 
 def write_json(rows):
@@ -124,17 +125,19 @@ def main():
     rows = load()
     print(f"loaded {len(rows)} cached rows\n")
 
-    write_and_pdf("1_ALL_NOTICES", "All CDC Notices", f"Every notice fetched from the ERP notice board -- {len(rows)} rows.", rows)
-
     placement = [r for r in rows if r["type"] == "PLACEMENT"]
-    write_and_pdf("2_PLACEMENT_ONLY", "Placement Notices (all subjects)", f"Type = PLACEMENT only -- {len(placement)} rows.", placement)
-
     placement_no_ppo = [r for r in placement if r["subject"].upper() != "PPO"]
-    write_and_pdf("3_PLACEMENT_NO_PPO", "Placement Notices (excluding PPO)", f"Type = PLACEMENT, Subject != PPO -- {len(placement_no_ppo)} rows.", placement_no_ppo)
-
     internships = [r for r in rows if r["type"] == "INTERNSHIP"]
     internships_sorted = sorted(internships, key=lambda r: int(r["id"]) if str(r["id"]).isdigit() else 0, reverse=True)[:10]
-    write_and_pdf("4_TOP10_INTERNSHIPS", "Top 10 Most Recent Internship Notices", "Most recent 10 INTERNSHIP notices, with download info where available.", internships_sorted, show_download=True)
+
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        browser_page = browser.new_page()
+        write_and_pdf(browser_page, "1_ALL_NOTICES", "All CDC Notices", f"Every notice fetched from the ERP notice board -- {len(rows)} rows.", rows)
+        write_and_pdf(browser_page, "2_PLACEMENT_ONLY", "Placement Notices (all subjects)", f"Type = PLACEMENT only -- {len(placement)} rows.", placement)
+        write_and_pdf(browser_page, "3_PLACEMENT_NO_PPO", "Placement Notices (excluding PPO)", f"Type = PLACEMENT, Subject != PPO -- {len(placement_no_ppo)} rows.", placement_no_ppo)
+        write_and_pdf(browser_page, "4_TOP10_INTERNSHIPS", "Top 10 Most Recent Internship Notices", "Most recent 10 INTERNSHIP notices, with download info where available.", internships_sorted, show_download=True)
+        browser.close()
 
     write_json(rows)
 
