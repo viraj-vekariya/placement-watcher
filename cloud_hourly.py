@@ -6,16 +6,16 @@ no Claude needed per run.
   3. Diff against previously-seen notice IDs (state committed back to the repo).
   4. Rebuild all 4 PDF documents + docs/notices.json with the latest data,
      and commit them back so the GitHub Pages dashboard picks it up.
-
-WhatsApp delivery is intentionally NOT wired in here for now (paused --
-see project memory). Re-add a notify step once a working send path exists.
+  5. ALWAYS send a WhatsApp message this hour -- either what's new, or an
+     explicit "no update" heartbeat. Best-effort: a WhatsApp hiccup never
+     stops the docs/website from being rebuilt and committed.
 """
 import datetime, json, os, sys
 from pathlib import Path
 
 BASE = Path(__file__).resolve().parent
 sys.path.insert(0, str(BASE))
-import login, build_docs
+import login, build_docs, wa_cloud
 from extract_notices_playwright import fetch as extract_notices
 
 SESSION_FILE = BASE / "session_cookie.txt"
@@ -74,6 +74,10 @@ def main():
     cookie = get_session()
     if not cookie:
         log(f"login failed at {now_str} -- will retry next hour.")
+        try:
+            wa_cloud.send(f"CDC watcher: login failed at {now_str} -- will retry next hour.")
+        except Exception as e:
+            log(f"WhatsApp send failed (non-fatal): {e}")
         return
 
     log("extracting notice board via headless browser...")
@@ -95,6 +99,26 @@ def main():
     SEEN_FILE.write_text(json.dumps(sorted({r["id"] for r in raw}, key=lambda x: int(x) if x.isdigit() else 0)))
 
     log(f"cycle complete -- {len(new_rows)} new notice(s) this hour" if new_rows else "cycle complete -- no new notices this hour")
+
+    if new_rows:
+        placement_new = [r for r in new_rows if r["type"] == "PLACEMENT" and r["subject"].upper() != "PPO"]
+        internship_new = [r for r in new_rows if r["type"] == "INTERNSHIP"]
+        ppo_new = [r for r in new_rows if r["subject"].upper() == "PPO"]
+        lines = [f"CDC update -- {now_str}", f"{len(new_rows)} new notice(s):"]
+        for r in placement_new[:6]:
+            lines.append(f"• [PLACEMENT] {r['company']} ({r['subject']})")
+        for r in internship_new[:6]:
+            lines.append(f"• [INTERNSHIP] {r['company']} ({r['subject']})")
+        if ppo_new:
+            lines.append(f"+ {len(ppo_new)} PPO notice(s)")
+        msg = "\n".join(lines)
+    else:
+        msg = f"No update for now at {now_str}."
+    try:
+        wa_cloud.send(msg)
+        log(f"WhatsApp sent: {'NEW ' + str(len(new_rows)) if new_rows else 'no-update heartbeat'}")
+    except Exception as e:
+        log(f"WhatsApp send failed (non-fatal): {e}")
 
 
 if __name__ == "__main__":
