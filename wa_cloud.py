@@ -85,8 +85,20 @@ def setup_with_phone_code(timeout_s=480):
             page.get_by_text("Log in with phone number", exact=False).click(timeout=15000)
         except Exception as e:
             print("could not find 'log in with phone number' link:", e)
+            print("--- page text for diagnosis ---")
+            print(page.evaluate("document.body.innerText")[:600])
             ctx.close(); return False
-        page.wait_for_timeout(2500)
+        # a cold CI runner (fresh browser download, no local cache) can take
+        # noticeably longer to render this form than a warm local run --
+        # explicitly wait for the field to exist rather than a fixed sleep.
+        try:
+            page.wait_for_selector('input[data-testid="phone-number-input"]', timeout=20000)
+        except Exception as e:
+            print("phone number field never appeared:", e)
+            print("--- page text for diagnosis ---")
+            print(page.evaluate("document.body.innerText")[:600])
+            ctx.close(); return False
+        page.wait_for_timeout(1500)
         # WhatsApp auto-selects the country by the SERVER's IP geolocation, not
         # the target number's actual country -- on a US-based CI runner this
         # silently defaults to the US, which then misreads the whole number.
@@ -96,7 +108,7 @@ def setup_with_phone_code(timeout_s=480):
         # which is far more robust than trying to drive the country dropdown UI.
         try:
             box = page.locator('input[data-testid="phone-number-input"]')
-            box.click(timeout=10000)
+            box.click(timeout=15000)
             box.fill("")
             box.type("+" + MY_NUMBER, delay=30)
             page.wait_for_timeout(1200)
