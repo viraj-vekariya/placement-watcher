@@ -86,6 +86,40 @@ def write_and_pdf(name, title, subtitle, rows, show_download=False):
                      f"file://{html_path}"], check=True, capture_output=True, timeout=60)
     print(f"  wrote {pdf_path.name}  ({len(rows)} rows)")
 
+def write_json(rows):
+    """Writes docs/notices.json -- the data source for the website dashboard.
+    Same categorization rules as the 4 PDFs, kept in this one place so the
+    site and the documents can never drift apart."""
+    import datetime
+    def slim(r, show_download=False):
+        out = {"id": r["id"], "type": r["type"], "subject": r["subject"],
+               "company": r["company"], "notice": r["notice"], "noticeat": r["noticeat"]}
+        if show_download:
+            out["has_download"] = bool((r.get("download_raw") or "").strip())
+        return out
+
+    placement = [r for r in rows if r["type"] == "PLACEMENT"]
+    placement_no_ppo = [r for r in placement if r["subject"].upper() != "PPO"]
+    internships = [r for r in rows if r["type"] == "INTERNSHIP"]
+    internships_sorted = sorted(internships, key=lambda r: int(r["id"]) if str(r["id"]).isdigit() else 0, reverse=True)
+    top10 = internships_sorted[:10]
+
+    data = {
+        "last_updated": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "stats": {
+            "total": len(rows), "internship": len(internships), "placement": len(placement),
+            "placement_no_ppo": len(placement_no_ppo),
+        },
+        "categories": {
+            "all": [slim(r) for r in sorted(rows, key=lambda r: int(r["id"]) if str(r["id"]).isdigit() else 0, reverse=True)],
+            "placement": [slim(r) for r in sorted(placement, key=lambda r: int(r["id"]) if str(r["id"]).isdigit() else 0, reverse=True)],
+            "placement_no_ppo": [slim(r) for r in sorted(placement_no_ppo, key=lambda r: int(r["id"]) if str(r["id"]).isdigit() else 0, reverse=True)],
+            "top10_internships": [slim(r, show_download=True) for r in top10],
+        },
+    }
+    (DOCS / "notices.json").write_text(json.dumps(data, indent=1))
+    print(f"  wrote notices.json ({len(rows)} total rows)")
+
 def main():
     rows = load()
     print(f"loaded {len(rows)} cached rows\n")
@@ -102,7 +136,9 @@ def main():
     internships_sorted = sorted(internships, key=lambda r: int(r["id"]) if str(r["id"]).isdigit() else 0, reverse=True)[:10]
     write_and_pdf("4_TOP10_INTERNSHIPS", "Top 10 Most Recent Internship Notices", "Most recent 10 INTERNSHIP notices, with download info where available.", internships_sorted, show_download=True)
 
-    print("\nAll 4 documents built in ./docs/")
+    write_json(rows)
+
+    print("\nAll 4 documents + notices.json built in ./docs/")
 
 if __name__ == "__main__":
     main()
