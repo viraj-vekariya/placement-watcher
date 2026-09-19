@@ -12,6 +12,7 @@ no Claude needed per run.
 """
 import datetime, json, os, sys
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 BASE = Path(__file__).resolve().parent
 sys.path.insert(0, str(BASE))
@@ -21,10 +22,13 @@ from extract_notices_playwright import fetch as extract_notices
 SESSION_FILE = BASE / "session_cookie.txt"
 SEEN_FILE = BASE / "seen_notice_ids.json"
 CACHE = BASE / "notices_cache.json"
+IST = ZoneInfo("Asia/Kolkata")  # the GitHub Actions runner's clock is UTC --
+                                # every timestamp must convert explicitly or
+                                # messages silently show UTC as if it were IST
 
 
 def log(msg):
-    print(f"{datetime.datetime.now():%Y-%m-%d %H:%M:%S} | {msg}")
+    print(f"{datetime.datetime.now(IST):%Y-%m-%d %H:%M:%S} IST | {msg}")
 
 
 def session_alive(cookie):
@@ -70,7 +74,7 @@ def reflow(text):
 
 
 def main():
-    now_str = datetime.datetime.now().strftime("%d %b, %I:%M %p")
+    now_str = datetime.datetime.now(IST).strftime("%d %b, %I:%M %p IST")
     cookie = get_session()
     if not cookie:
         log(f"login failed at {now_str} -- will retry next hour.")
