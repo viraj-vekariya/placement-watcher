@@ -1,3 +1,5 @@
 __pycache__/
 state.json
 public/
+session_cookie.txt
+wa_profile/
