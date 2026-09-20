@@ -78,22 +78,19 @@ def reflow(text):
 
 
 def notify_all(message):
-    """Sends to BOTH the personal self-DM (proven reliable all day, every
-    real content check confirmed cross-device) and the new "CDC Updates"
-    group (preferred long-term, but hit one unconfirmed WhatsApp-side sync
-    glitch) -- temporary redundancy so nothing gets missed today while the
-    group path gets more confidence. Each attempt is independent; one
-    failing never blocks the other or the rest of the cycle."""
+    """Personal self-DM only -- the reliable, proven channel. The "CDC
+    Updates" group send was tried as a second channel but is still flaky
+    (WhatsApp-side sync glitches + UI timing issues), so it's been pulled
+    back out of the automated path per explicit decision (20 Sep 2026) to
+    not risk the one reliable channel while the group is still being
+    debugged separately. wa_cloud.send_to_chat() stays available in
+    wa_cloud.py for that ongoing debugging -- just not called from here
+    until it's proven reliable."""
     try:
         wa_cloud.send(message)
         log("WhatsApp sent to personal DM")
     except Exception as e:
         log(f"WhatsApp personal-DM send failed (non-fatal): {e}")
-    try:
-        wa_cloud.send_to_chat(message, WA_GROUP)
-        log(f"WhatsApp sent to group '{WA_GROUP}'")
-    except Exception as e:
-        log(f"WhatsApp group send failed (non-fatal): {e}")
 
 
 def main():
