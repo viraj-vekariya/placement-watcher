@@ -192,9 +192,63 @@ def send(message, headless=True, timeout_ms=30000):
         ctx = _launch(p, headless)
         page = ctx.pages[0] if ctx.pages else ctx.new_page()
         page.goto(url, timeout=timeout_ms)
-        box = page.wait_for_selector('div[contenteditable="true"][data-tab="10"]', timeout=timeout_ms)
+        box = page.wait_for_selector('div[contenteditable="true"][aria-label^="Type a message" i]', timeout=timeout_ms)
         page.wait_for_timeout(1500)
         box.click()
+        page.keyboard.press("Enter")
+        page.wait_for_timeout(1500)
+        ctx.close()
+
+
+def _find_chat_listitem(page, chat_name, timeout_s=15):
+    """Polls the currently-rendered list of chat rows for one whose text
+    starts with chat_name (list items also carry a trailing timestamp/last-
+    message line, so startswith is used rather than an exact match)."""
+    end = time.time() + timeout_s
+    while time.time() < end:
+        for it in page.get_by_role("listitem").all():
+            try:
+                t = it.inner_text(timeout=1500)
+            except Exception:
+                continue
+            if t.strip().startswith(chat_name):
+                return it
+        time.sleep(1)
+    return None
+
+
+def send_to_chat(message, chat_name, headless=True, timeout_ms=30000):
+    """Sends to a WhatsApp GROUP (or any named chat) by name -- something the
+    official/Composio API can never do, only real browser automation.
+
+    The `?text=` deep link opens a "Send message to" forward-style picker;
+    text placed via this picker preserves newlines correctly (typing it via
+    the keyboard directly does not -- a literal "\\n" triggers WhatsApp's own
+    Enter-to-send behaviour mid-message). Clicking the target chat then
+    "Send" here does NOT actually transmit it despite the button's name --
+    it leaves the text sitting as a draft -- but it also leaves that chat's
+    own compose box (with the draft already in it) immediately available on
+    the SAME page, so no second navigation/search is needed: just click that
+    box and press Enter to actually send it.
+    """
+    text = urllib.parse.quote(message)
+    with sync_playwright() as p:
+        ctx = _launch(p, headless)
+        page = ctx.pages[0] if ctx.pages else ctx.new_page()
+
+        page.goto(f"https://web.whatsapp.com/send?text={text}", timeout=timeout_ms)
+        page.wait_for_timeout(4000)
+        target = _find_chat_listitem(page, chat_name)
+        if not target:
+            ctx.close()
+            raise RuntimeError(f"chat '{chat_name}' not found in forward picker")
+        target.click(timeout=timeout_ms)
+        page.wait_for_timeout(1200)
+        page.get_by_role("button", name="Send", exact=True).click(timeout=timeout_ms)
+        page.wait_for_timeout(2500)
+
+        box = page.wait_for_selector('div[contenteditable="true"][aria-label^="Type a message" i]', timeout=timeout_ms)
+        box.click(timeout=timeout_ms)
         page.keyboard.press("Enter")
         page.wait_for_timeout(1500)
         ctx.close()

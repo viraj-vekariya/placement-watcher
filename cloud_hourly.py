@@ -22,6 +22,10 @@ from extract_notices_playwright import fetch as extract_notices
 SESSION_FILE = BASE / "session_cookie.txt"
 SEEN_FILE = BASE / "seen_notice_ids.json"
 CACHE = BASE / "notices_cache.json"
+WA_GROUP = os.environ.get("WA_GROUP_NAME", "CDC Updates")  # dedicated group,
+                                                            # keeps placement
+                                                            # noise out of the
+                                                            # personal self-DM
 IST = ZoneInfo("Asia/Kolkata")  # the GitHub Actions runner's clock is UTC --
                                 # every timestamp must convert explicitly or
                                 # messages silently show UTC as if it were IST
@@ -79,7 +83,7 @@ def main():
     if not cookie:
         log(f"login failed at {now_str} -- will retry next hour.")
         try:
-            wa_cloud.send(f"CDC watcher: login failed at {now_str} -- will retry next hour.")
+            wa_cloud.send_to_chat(f"CDC watcher: login failed at {now_str} -- will retry next hour.", WA_GROUP)
         except Exception as e:
             log(f"WhatsApp send failed (non-fatal): {e}")
         return
@@ -113,14 +117,14 @@ def main():
             header = f"[{r['type']}] {r['company'] or '(no company / general notice)'} ({r['subject']})"
             msg = f"{header}\n\n{reflow(r['notice'])}"
             try:
-                wa_cloud.send(msg)
+                wa_cloud.send_to_chat(msg, WA_GROUP)
                 sent += 1
             except Exception as e:
                 log(f"WhatsApp send failed for notice {r['id']} (non-fatal): {e}")
         log(f"WhatsApp sent: {sent}/{len(new_rows)} full notice(s)")
     else:
         try:
-            wa_cloud.send("No CDC update for now.")
+            wa_cloud.send_to_chat("No CDC update for now.", WA_GROUP)
             log("WhatsApp sent: no-update heartbeat")
         except Exception as e:
             log(f"WhatsApp send failed (non-fatal): {e}")
