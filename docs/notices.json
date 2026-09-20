@@ -1,13 +1,21 @@
 {
- "last_updated": "2026-09-20T11:49:03Z",
+ "last_updated": "2026-09-20T12:24:02Z",
  "stats": {
-  "total": 845,
-  "internship": 733,
+  "total": 846,
+  "internship": 734,
   "placement": 112,
   "placement_no_ppo": 24
  },
  "categories": {
   "all": [
+   {
+    "id": "907",
+    "type": "INTERNSHIP",
+    "subject": "CV Submission",
+    "company": "ASSURANT",
+    "notice": "The CV submission of ASSURANT has been extended till 11:59 AM, 21th September 2026.\n\nInterested and eligible students are advised to apply within the given deadline. No further extensions will be given.\n\nCDC, IIT Kharagpur",
+    "noticeat": "20-09-2026 17:23"
+   },
    {
     "id": "906",
     "type": "INTERNSHIP",
@@ -7863,6 +7871,15 @@
   ],
   "top10_internships": [
    {
+    "id": "907",
+    "type": "INTERNSHIP",
+    "subject": "CV Submission",
+    "company": "ASSURANT",
+    "notice": "The CV submission of ASSURANT has been extended till 11:59 AM, 21th September 2026.\n\nInterested and eligible students are advised to apply within the given deadline. No further extensions will be given.\n\nCDC, IIT Kharagpur",
+    "noticeat": "20-09-2026 17:23",
+    "has_download": false
+   },
+   {
     "id": "906",
     "type": "INTERNSHIP",
     "subject": "Shortlist",
@@ -7942,15 +7959,6 @@
     "notice": "PFA the shortlist for the online assessment of EY GDS, which is scheduled on 15th September 2026 from 9:30 PM onwards.\n\nThe test link will be shared on the CDC-registered email IDs of the shortlisted candidates shortly.\n\nVenue: Respective Location\n\nPOC: Arpita Pawar (+91 9075564147)\n\nCDC, IIT Kharagpur",
     "noticeat": "15-09-2026 18:28",
     "has_download": true
-   },
-   {
-    "id": "893",
-    "type": "INTERNSHIP",
-    "subject": "CV Submission",
-    "company": "GALK Inc. (Willings)",
-    "notice": "The CV submission of GALK Inc (Willings) has been opened till 11:59 PM, 15th September 2026.\n\nInterested and eligible students are advised to apply within the given deadline. No further extensions will be given.\n\nThe students who have applied on ERP are required to complete their registration on the GALK Portal as the next step.\n\nRegistration \n\nLink: https://candidate.galk-jp.com/\n\nCandidates are required to:1. Register and log in to the GALK Portal.2. Complete the registration process, including publishing their profile after login.3. Go to the GALK Recruit section and complete the Screening Form.4. Answer all questions carefully and correctly before submitting the form.\n\nNote: Once the Screening Form is submitted, the responses cannot be reverted or modified. Candidates are therefore advised to review their answers carefully before submission.\n\nOnly the students who have applied on both ERP and the GALK Portal will be considered.\n\nCDC, IIT Kharagpur",
-    "noticeat": "14-09-2026 16:20",
-    "has_download": false
    }
   ]
  }
