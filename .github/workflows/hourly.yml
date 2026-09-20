@@ -1,16 +1,16 @@
 name: Hourly CDC watcher
 on:
+  # No native `schedule:` trigger -- GitHub's own scheduler proved
+  # unreliable for this repo beyond just occasional drift (confirmed: a
+  # full 5+ hour stretch with ZERO scheduled runs despite a 15-min cron,
+  # workflow verified active, cron syntax verified correct). Scheduling is
+  # now handled entirely by an external cron (cron-job.org) calling this
+  # workflow's dispatch API endpoint once an hour -- that bypasses GitHub's
+  # scheduler infrastructure completely. Keeping a native `schedule:` here
+  # too would risk it firing close to the external trigger and causing two
+  # near-simultaneous ERP logins (which trips ERP's own anti-automation
+  # throttle) -- so this is workflow_dispatch-only by design.
   workflow_dispatch: {}
-  schedule:
-    # Polls every 15 min instead of once an hour -- GitHub's own scheduler
-    # has repeatedly, silently skipped single hourly slots (confirmed via
-    # real run history: workflow active, cron correct, still hours-long
-    # gaps with zero runs). Polling 4x/hour gives 3 extra chances for at
-    # least one to actually fire. cloud_hourly.py's own run_is_due() check
-    # (and the "Check if a run is due" gate step below) makes sure ERP still
-    # only actually gets logged into about once an hour regardless -- this
-    # fixes scheduler reliability WITHOUT increasing ERP login frequency.
-    - cron: '*/15 * * * *'
 permissions:
   contents: write
 concurrency:
