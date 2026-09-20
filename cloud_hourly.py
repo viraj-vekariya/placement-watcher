@@ -77,15 +77,31 @@ def reflow(text):
     return re.sub(r"\n{3,}", "\n\n", text).strip()
 
 
+def notify_all(message):
+    """Sends to BOTH the personal self-DM (proven reliable all day, every
+    real content check confirmed cross-device) and the new "CDC Updates"
+    group (preferred long-term, but hit one unconfirmed WhatsApp-side sync
+    glitch) -- temporary redundancy so nothing gets missed today while the
+    group path gets more confidence. Each attempt is independent; one
+    failing never blocks the other or the rest of the cycle."""
+    try:
+        wa_cloud.send(message)
+        log("WhatsApp sent to personal DM")
+    except Exception as e:
+        log(f"WhatsApp personal-DM send failed (non-fatal): {e}")
+    try:
+        wa_cloud.send_to_chat(message, WA_GROUP)
+        log(f"WhatsApp sent to group '{WA_GROUP}'")
+    except Exception as e:
+        log(f"WhatsApp group send failed (non-fatal): {e}")
+
+
 def main():
     now_str = datetime.datetime.now(IST).strftime("%d %b, %I:%M %p IST")
     cookie = get_session()
     if not cookie:
         log(f"login failed at {now_str} -- will retry next hour.")
-        try:
-            wa_cloud.send_to_chat(f"CDC watcher: login failed at {now_str} -- will retry next hour.", WA_GROUP)
-        except Exception as e:
-            log(f"WhatsApp send failed (non-fatal): {e}")
+        notify_all(f"CDC watcher: login failed at {now_str} -- will retry next hour.")
         return
 
     log("extracting notice board via headless browser...")
@@ -112,22 +128,12 @@ def main():
     # notice (not a truncated company/subject summary) -- and the exact
     # fixed phrase "No CDC update for now." when nothing new came in.
     if new_rows:
-        sent = 0
         for r in new_rows:
             header = f"[{r['type']}] {r['company'] or '(no company / general notice)'} ({r['subject']})"
             msg = f"{header}\n\n{reflow(r['notice'])}"
-            try:
-                wa_cloud.send_to_chat(msg, WA_GROUP)
-                sent += 1
-            except Exception as e:
-                log(f"WhatsApp send failed for notice {r['id']} (non-fatal): {e}")
-        log(f"WhatsApp sent: {sent}/{len(new_rows)} full notice(s)")
+            notify_all(msg)
     else:
-        try:
-            wa_cloud.send_to_chat("No CDC update for now.", WA_GROUP)
-            log("WhatsApp sent: no-update heartbeat")
-        except Exception as e:
-            log(f"WhatsApp send failed (non-fatal): {e}")
+        notify_all("No CDC update for now.")
 
 
 if __name__ == "__main__":

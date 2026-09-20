@@ -2,12 +2,9 @@ name: Hourly CDC watcher
 on:
   workflow_dispatch: {}
   schedule:
-    # deliberately NOT ':00' -- the exact top of the hour is the single most
-    # congested cron slot on GitHub's shared runners (every default-choice
-    # workflow in the world picks it), so scheduled runs there are the most
-    # likely to be delayed or dropped. ':03' still lands at ~IST :33, close
-    # enough to the requested "on the half hour" while avoiding that queue.
-    - cron: '3 * * * *'
+    # user wants messages on the exact IST hour (11am, 12pm, 1pm, ...).
+    # IST = UTC+5:30, so UTC :30 lands exactly on the IST hour.
+    - cron: '30 * * * *'
 permissions:
   contents: write
 concurrency:
