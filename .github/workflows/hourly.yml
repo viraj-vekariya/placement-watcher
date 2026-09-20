@@ -2,9 +2,15 @@ name: Hourly CDC watcher
 on:
   workflow_dispatch: {}
   schedule:
-    # user wants messages on the exact IST hour (11am, 12pm, 1pm, ...).
-    # IST = UTC+5:30, so UTC :30 lands exactly on the IST hour.
-    - cron: '30 * * * *'
+    # Polls every 15 min instead of once an hour -- GitHub's own scheduler
+    # has repeatedly, silently skipped single hourly slots (confirmed via
+    # real run history: workflow active, cron correct, still hours-long
+    # gaps with zero runs). Polling 4x/hour gives 3 extra chances for at
+    # least one to actually fire. cloud_hourly.py's own run_is_due() check
+    # (and the "Check if a run is due" gate step below) makes sure ERP still
+    # only actually gets logged into about once an hour regardless -- this
+    # fixes scheduler reliability WITHOUT increasing ERP login frequency.
+    - cron: '*/15 * * * *'
 permissions:
   contents: write
 concurrency:
@@ -16,14 +22,38 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+      - name: Check if a run is actually due
+        id: gate
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          python3 - <<'PYEOF'
+          import json, datetime, os
+          due = True
+          try:
+              with open("last_run.json") as f:
+                  last = datetime.datetime.fromisoformat(json.load(f)["last_success"])
+              gap_min = (datetime.datetime.now(datetime.timezone.utc) - last).total_seconds() / 60
+              due = gap_min >= 50
+          except Exception:
+              due = True
+          force = os.environ.get("EVENT_NAME") == "workflow_dispatch"
+          should_run = due or force
+          print(f"due={due} force={force} should_run={should_run}")
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write(f"should_run={'true' if should_run else 'false'}\n")
+          PYEOF
       - uses: actions/setup-python@v5
+        if: steps.gate.outputs.should_run == 'true'
         with:
           python-version: '3.12'
       - name: Install deps
+        if: steps.gate.outputs.should_run == 'true'
         run: |
           pip install playwright requests
           python3 -m playwright install --with-deps chromium
       - name: Decrypt WhatsApp session
+        if: steps.gate.outputs.should_run == 'true'
         env:
           WA_PROFILE_KEY: ${{ secrets.WA_PROFILE_KEY }}
         run: |
@@ -32,6 +62,7 @@ jobs:
           tar -xzf wa_profile.tar.gz -C wa_profile
           rm -f wa_profile.tar.gz
       - name: Run hourly check + WhatsApp notify
+        if: steps.gate.outputs.should_run == 'true'
         env:
           ERP_USER: ${{ secrets.ERP_USER }}
           ERP_PW: ${{ secrets.ERP_PW }}
@@ -39,9 +70,10 @@ jobs:
           APP_PW: ${{ secrets.APP_PW }}
           SECURITY_ANSWERS: ${{ secrets.SECURITY_ANSWERS }}
           WA_NUMBER: ${{ secrets.WA_NUMBER }}
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
         run: python3 cloud_hourly.py
       - name: Re-encrypt WhatsApp session (may have refreshed tokens)
-        if: always()
+        if: steps.gate.outputs.should_run == 'true' && always()
         env:
           WA_PROFILE_KEY: ${{ secrets.WA_PROFILE_KEY }}
         run: |
@@ -52,10 +84,10 @@ jobs:
           openssl enc -aes-256-cbc -pbkdf2 -salt -in wa_profile.tar.gz -out wa_profile.tar.gz.enc -pass env:WA_PROFILE_KEY
           rm -f wa_profile.tar.gz
       - name: Commit updated state
-        if: always()
+        if: steps.gate.outputs.should_run == 'true' && always()
         run: |
           git config user.name "placement-watcher-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add wa_profile.tar.gz.enc seen_notice_ids.json docs/ 2>/dev/null || true
+          git add wa_profile.tar.gz.enc seen_notice_ids.json docs/ last_run.json 2>/dev/null || true
           git commit -m "chore: hourly update $(date -u +%Y-%m-%dT%H:%M:%SZ)" || echo "nothing to commit"
           git push

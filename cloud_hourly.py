@@ -22,6 +22,13 @@ from extract_notices_playwright import fetch as extract_notices
 SESSION_FILE = BASE / "session_cookie.txt"
 SEEN_FILE = BASE / "seen_notice_ids.json"
 CACHE = BASE / "notices_cache.json"
+LAST_RUN_FILE = BASE / "last_run.json"
+MIN_GAP_MINUTES = 50  # the workflow itself now fires every 15 min (see
+                       # hourly.yml) so a dropped GitHub-scheduler slot has 3
+                       # more chances to catch it that same hour -- but ERP
+                       # should still only actually get logged into about
+                       # once an hour, so a run this soon after the last
+                       # SUCCESSFUL one just skips the real work entirely.
 WA_GROUP = os.environ.get("WA_GROUP_NAME", "CDC Updates")  # dedicated group,
                                                             # keeps placement
                                                             # noise out of the
@@ -93,7 +100,34 @@ def notify_all(message):
         log(f"WhatsApp personal-DM send failed (non-fatal): {e}")
 
 
+def run_is_due():
+    """workflow_dispatch (manual trigger) always runs. A scheduled trigger
+    only runs if the last SUCCESSFUL cycle was more than MIN_GAP_MINUTES ago
+    -- this is what lets the workflow poll every 15 min (for scheduler
+    reliability) without logging into the ERP any more often than before."""
+    if os.environ.get("GITHUB_EVENT_NAME") == "workflow_dispatch":
+        return True
+    if not LAST_RUN_FILE.exists():
+        return True
+    try:
+        last = datetime.datetime.fromisoformat(json.loads(LAST_RUN_FILE.read_text())["last_success"])
+    except Exception:
+        return True
+    gap_min = (datetime.datetime.now(datetime.timezone.utc) - last).total_seconds() / 60
+    return gap_min >= MIN_GAP_MINUTES
+
+
+def mark_run_complete():
+    LAST_RUN_FILE.write_text(json.dumps({
+        "last_success": datetime.datetime.now(datetime.timezone.utc).isoformat()
+    }))
+
+
 def main():
+    if not run_is_due():
+        log("skipping -- last successful cycle was too recent (scheduler poll, not due yet)")
+        return
+
     now_str = datetime.datetime.now(IST).strftime("%d %b, %I:%M %p IST")
     cookie = get_session()
     if not cookie:
@@ -120,6 +154,7 @@ def main():
     SEEN_FILE.write_text(json.dumps(sorted({r["id"] for r in raw}, key=lambda x: int(x) if x.isdigit() else 0)))
 
     log(f"cycle complete -- {len(new_rows)} new notice(s) this hour" if new_rows else "cycle complete -- no new notices this hour")
+    mark_run_complete()
 
     # user wants the FULL notice text pasted, one WhatsApp message per new
     # notice (not a truncated company/subject summary) -- and the exact
