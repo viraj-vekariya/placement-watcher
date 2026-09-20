@@ -184,6 +184,16 @@ def setup_with_phone_code(timeout_s=480):
 
 
 def send(message, headless=True, timeout_ms=30000):
+    """Sends to the personal self-chat and VERIFIES it actually went out --
+    a cold headless profile can render the compose box from cached local
+    state before the real multi-device socket to the phone is up, which
+    made earlier versions of this function report success (no exception)
+    for messages that were typed and Entered but never actually delivered.
+    Now: waits a bit longer for the app to settle, bails loudly if the page
+    shows an offline/connecting banner, and after sending, confirms the
+    last outgoing bubble in the chat actually carries a sent/delivered tick
+    before returning -- if it can't confirm that, it raises instead of
+    silently claiming success."""
     if not MY_NUMBER:
         raise RuntimeError("WA_NUMBER not set")
     text = urllib.parse.quote(message)
@@ -193,11 +203,36 @@ def send(message, headless=True, timeout_ms=30000):
         page = ctx.pages[0] if ctx.pages else ctx.new_page()
         page.goto(url, timeout=timeout_ms)
         box = page.wait_for_selector('div[contenteditable="true"][aria-label^="Type a message" i]', timeout=timeout_ms)
-        page.wait_for_timeout(1500)
+        page.wait_for_timeout(3000)  # let the socket to the phone settle, not just the DOM render
+
+        header_text = ""
+        try:
+            header_text = page.locator("header").first.inner_text(timeout=5000)
+        except Exception:
+            pass
+
+        page_text = page.evaluate("document.body.innerText")
+        if any(w in page_text for w in ("Connecting", "computer is not connected", "Trying to reach phone", "phone number shared via url is invalid")):
+            snippet = page_text[:300]
+            ctx.close()
+            raise RuntimeError(f"WhatsApp not actually connected before send -- header={header_text!r} page={snippet!r}")
+
         box.click()
         page.keyboard.press("Enter")
-        page.wait_for_timeout(1500)
+        page.wait_for_timeout(2500)
+
+        sent_ok = False
+        try:
+            last_out = page.locator("div.message-out").last
+            last_out.wait_for(timeout=6000)
+            sent_ok = last_out.locator(
+                'span[data-icon="msg-check"], span[data-icon="msg-dblcheck"], span[data-icon="msg-dblcheck-ack"]'
+            ).count() > 0
+        except Exception:
+            pass
         ctx.close()
+        if not sent_ok:
+            raise RuntimeError(f"could not confirm a sent/delivered tick after Enter -- header={header_text!r}")
 
 
 def send_file(path, caption="", headless=True, timeout_ms=40000):
@@ -212,7 +247,11 @@ def send_file(path, caption="", headless=True, timeout_ms=40000):
         page = ctx.pages[0] if ctx.pages else ctx.new_page()
         page.goto(f"https://web.whatsapp.com/send?phone={MY_NUMBER}", timeout=timeout_ms)
         page.wait_for_selector('div[contenteditable="true"][aria-label^="Type a message" i]', timeout=timeout_ms)
-        page.wait_for_timeout(1500)
+        page.wait_for_timeout(3000)  # let the socket to the phone settle, not just the DOM render
+        page_text = page.evaluate("document.body.innerText")
+        if any(w in page_text for w in ("Connecting", "computer is not connected", "Trying to reach phone", "phone number shared via url is invalid")):
+            ctx.close()
+            raise RuntimeError(f"WhatsApp not actually connected before send_file -- page={page_text[:300]!r}")
         page.get_by_role("button", name="Attach").first.click(timeout=timeout_ms)
         page.wait_for_timeout(800)
         with page.expect_file_chooser(timeout=timeout_ms) as fc:
@@ -231,7 +270,19 @@ def send_file(path, caption="", headless=True, timeout_ms=40000):
         except Exception:
             page.keyboard.press("Enter")
         page.wait_for_timeout(5000)
+
+        sent_ok = False
+        try:
+            last_out = page.locator("div.message-out").last
+            last_out.wait_for(timeout=8000)
+            sent_ok = last_out.locator(
+                'span[data-icon="msg-check"], span[data-icon="msg-dblcheck"], span[data-icon="msg-dblcheck-ack"]'
+            ).count() > 0
+        except Exception:
+            pass
         ctx.close()
+        if not sent_ok:
+            raise RuntimeError("could not confirm a sent/delivered tick after sending the file")
 
 
 def _find_chat_listitem(page, chat_name, timeout_s=15):

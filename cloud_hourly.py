@@ -78,6 +78,32 @@ def reflow(text):
     return re.sub(r"\n{3,}", "\n\n", text).strip()
 
 
+def email_fallback(subject, message):
+    """WhatsApp Web on a headless runner can fail in ways that look like
+    success (see wa_cloud.send's docstring, 21 Sep 2026) -- when it now
+    raises instead, this is the one channel that never depends on the
+    flaky part: same Gmail app password already used for OTP retrieval,
+    sent to the same inbox the user already checks every cycle for OTPs."""
+    gmail, app_pw = os.environ.get("GMAIL", ""), os.environ.get("APP_PW", "")
+    if not (gmail and app_pw):
+        log("email fallback skipped -- GMAIL/APP_PW not set")
+        return
+    try:
+        import smtplib
+        from email.mime.text import MIMEText
+        msg = MIMEText(message)
+        msg["Subject"] = subject
+        msg["From"] = gmail
+        msg["To"] = gmail
+        with smtplib.SMTP("smtp.gmail.com", 587, timeout=20) as s:
+            s.starttls()
+            s.login(gmail, app_pw)
+            s.send_message(msg)
+        log("fallback email sent (WhatsApp send failed)")
+    except Exception as e:
+        log(f"fallback email ALSO failed: {e}")
+
+
 def notify_all(message):
     """Personal self-DM only -- the reliable, proven channel. The "CDC
     Updates" group send was tried as a second channel but is still flaky
@@ -86,12 +112,18 @@ def notify_all(message):
     not risk the one reliable channel while the group is still being
     debugged separately. wa_cloud.send_to_chat() stays available in
     wa_cloud.py for that ongoing debugging -- just not called from here
-    until it's proven reliable."""
+    until it's proven reliable.
+
+    If WhatsApp itself fails (now verified, not just attempted -- see
+    wa_cloud.send), that failure would otherwise be totally silent to the
+    user (logged only in a GitHub Actions run log nobody is watching).
+    Falls back to email so a WhatsApp outage is never a silent outage."""
     try:
         wa_cloud.send(message)
-        log("WhatsApp sent to personal DM")
+        log("WhatsApp sent to personal DM (delivery confirmed)")
     except Exception as e:
-        log(f"WhatsApp personal-DM send failed (non-fatal): {e}")
+        log(f"WhatsApp personal-DM send failed: {e}")
+        email_fallback("CDC watcher -- WhatsApp failed, here's the update", f"{message}\n\n(WhatsApp error: {e})")
 
 
 def main():
