@@ -130,6 +130,8 @@ def main():
     log(f"documents rebuilt ({len(cache_rows)} total rows)")
 
     SEEN_FILE.write_text(json.dumps(sorted({r["id"] for r in raw}, key=lambda x: int(x) if x.isdigit() else 0)))
+    login.logout(cookie)
+    log("ERP session closed")
 
     log(f"cycle complete -- {len(new_rows)} new placement notice(s) this hour" if new_rows else "cycle complete -- no new placement notices this hour")
     prev_run = gate.last_success()

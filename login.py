@@ -101,8 +101,22 @@ def login(verbose=False):
     ok = ("Welcome" in h) and ("loginForm" not in h)
     if verbose: print("5) LOGGED IN:", ok)
     if not ok:
+        if verbose:
+            flat = lambda t: re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", re.sub(r"(?s)<(script|style).*?</\1>", " ", t))).strip()
+            print("   auth.htm:", a.status_code, "|", flat(a.text)[:200])
+            print("   home.htm:", flat(h)[:200])
         return None
     return "; ".join(f"{c.name}={c.value}" for c in s.cookies)
+
+def logout(cookie):
+    """Frees the ERP session when a cycle is done. The ERP is single-session per
+    user, so a session left open can block the next automated (or manual) login."""
+    try:
+        requests.get("https://erp.iitkgp.ac.in/IIT_ERP3/logout.htm", timeout=20,
+                     headers={"Cookie": cookie, "User-Agent": "Mozilla/5.0"})
+    except Exception:
+        pass
+
 
 if __name__ == "__main__":
     ck = login(verbose=True)
