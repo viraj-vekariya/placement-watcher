@@ -159,7 +159,7 @@ def main():
     } for r in raw]
     CACHE.write_text(json.dumps(cache_rows, indent=1))
     placement_rows = [r for r in cache_rows if r["type"] == "PLACEMENT"]
-    files = attachments.sync(cookie, placement_rows)
+    files = attachments.sync(cookie, placement_rows, log)
     log(f"attachments: {len(files)} file(s) captured, "
         f"{sum(1 for r in placement_rows if r['download_raw'])} placement notice(s) list a Download")
     build_docs.main()
