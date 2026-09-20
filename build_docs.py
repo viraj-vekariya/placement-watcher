@@ -1,14 +1,10 @@
 #!/usr/bin/env python3
-"""Builds 4 documents from the cached notice fetch (notices_cache.json):
-  1. ALL_NOTICES        -- every row fetched, as-is
+"""Builds the placement documents + website data from notices_cache.json:
   2. PLACEMENT_ONLY     -- type == PLACEMENT
-  3. PLACEMENT_NO_PPO   -- type == PLACEMENT and subject != PPO (the agreed filter)
-  4. TOP10_INTERNSHIPS  -- 10 most recent INTERNSHIP notices, with any resolvable
-                           download link/file noted
-Each is written as a styled HTML file, then exported to PDF via Playwright's
-bundled Chromium (page.pdf()) -- this works identically on macOS (local) and
-the Ubuntu GitHub Actions runner, unlike shelling out to a hardcoded
-/Applications/Google Chrome.app path which only exists locally.
+  3. PLACEMENT_NO_PPO   -- type == PLACEMENT and subject != PPO
+plus docs/notices.json (placement only). Internship notices are deliberately
+excluded everywhere. PDFs are rendered with Playwright's bundled Chromium
+(page.pdf()), which works identically on macOS and the Ubuntu CI runner.
 """
 import html, json, re, sys
 from pathlib import Path
@@ -89,37 +85,38 @@ def write_and_pdf(browser_page, name, title, subtitle, rows, show_download=False
 
 def write_json(rows):
     """Writes docs/notices.json -- the data source for the website dashboard.
-    Same categorization rules as the 4 PDFs, kept in this one place so the
-    site and the documents can never drift apart."""
+    PLACEMENT notices only (internships deliberately excluded per request).
+    A notice gets a `file` path when its ERP attachment was actually captured
+    into docs/files/ (see attachments.py); `has_download` alone only means the
+    ERP lists a Download link for it."""
     import datetime
-    def slim(r, show_download=False):
+    def key(r): return int(r["id"]) if str(r["id"]).isdigit() else 0
+    def slim(r):
         out = {"id": r["id"], "type": r["type"], "subject": r["subject"],
-               "company": r["company"], "notice": r["notice"], "noticeat": r["noticeat"]}
-        if show_download:
-            out["has_download"] = bool((r.get("download_raw") or "").strip())
+               "company": r["company"], "notice": r["notice"], "noticeat": r["noticeat"],
+               "has_download": bool((r.get("download_raw") or "").strip())}
+        f = DOCS / "files" / f"{r['id']}.pdf"
+        if f.exists() and f.stat().st_size > 0:
+            out["file"] = f"files/{r['id']}.pdf"
         return out
 
-    placement = [r for r in rows if r["type"] == "PLACEMENT"]
+    placement = sorted([r for r in rows if r["type"] == "PLACEMENT"], key=key, reverse=True)
     placement_no_ppo = [r for r in placement if r["subject"].upper() != "PPO"]
-    internships = [r for r in rows if r["type"] == "INTERNSHIP"]
-    internships_sorted = sorted(internships, key=lambda r: int(r["id"]) if str(r["id"]).isdigit() else 0, reverse=True)
-    top10 = internships_sorted[:10]
-
+    p_slim = [slim(r) for r in placement]
     data = {
         "last_updated": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "stats": {
-            "total": len(rows), "internship": len(internships), "placement": len(placement),
-            "placement_no_ppo": len(placement_no_ppo),
+            "placement": len(placement), "placement_no_ppo": len(placement_no_ppo),
+            "with_files": sum(1 for x in p_slim if "file" in x),
+            "listed_downloads": sum(1 for x in p_slim if x["has_download"]),
         },
         "categories": {
-            "all": [slim(r) for r in sorted(rows, key=lambda r: int(r["id"]) if str(r["id"]).isdigit() else 0, reverse=True)],
-            "placement": [slim(r) for r in sorted(placement, key=lambda r: int(r["id"]) if str(r["id"]).isdigit() else 0, reverse=True)],
-            "placement_no_ppo": [slim(r) for r in sorted(placement_no_ppo, key=lambda r: int(r["id"]) if str(r["id"]).isdigit() else 0, reverse=True)],
-            "top10_internships": [slim(r, show_download=True) for r in top10],
+            "placement": p_slim,
+            "placement_no_ppo": [slim(r) for r in placement_no_ppo],
         },
     }
     (DOCS / "notices.json").write_text(json.dumps(data, indent=1))
-    print(f"  wrote notices.json ({len(rows)} total rows)")
+    print(f"  wrote notices.json ({len(placement)} placement rows)")
 
 def main():
     rows = load()
@@ -127,21 +124,20 @@ def main():
 
     placement = [r for r in rows if r["type"] == "PLACEMENT"]
     placement_no_ppo = [r for r in placement if r["subject"].upper() != "PPO"]
-    internships = [r for r in rows if r["type"] == "INTERNSHIP"]
-    internships_sorted = sorted(internships, key=lambda r: int(r["id"]) if str(r["id"]).isdigit() else 0, reverse=True)[:10]
 
     with sync_playwright() as p:
         browser = p.chromium.launch()
         browser_page = browser.new_page()
-        write_and_pdf(browser_page, "1_ALL_NOTICES", "All CDC Notices", f"Every notice fetched from the ERP notice board -- {len(rows)} rows.", rows)
-        write_and_pdf(browser_page, "2_PLACEMENT_ONLY", "Placement Notices (all subjects)", f"Type = PLACEMENT only -- {len(placement)} rows.", placement)
-        write_and_pdf(browser_page, "3_PLACEMENT_NO_PPO", "Placement Notices (excluding PPO)", f"Type = PLACEMENT, Subject != PPO -- {len(placement_no_ppo)} rows.", placement_no_ppo)
-        write_and_pdf(browser_page, "4_TOP10_INTERNSHIPS", "Top 10 Most Recent Internship Notices", "Most recent 10 INTERNSHIP notices, with download info where available.", internships_sorted, show_download=True)
+        write_and_pdf(browser_page, "2_PLACEMENT_ONLY", "Placement Notices (all subjects)", f"Type = PLACEMENT only -- {len(placement)} rows.", placement, show_download=True)
+        write_and_pdf(browser_page, "3_PLACEMENT_NO_PPO", "Placement Notices (excluding PPO)", f"Type = PLACEMENT, Subject != PPO -- {len(placement_no_ppo)} rows.", placement_no_ppo, show_download=True)
         browser.close()
+    for stale in ("1_ALL_NOTICES", "4_TOP10_INTERNSHIPS"):
+        for ext in ("html", "pdf"):
+            (DOCS / f"{stale}.{ext}").unlink(missing_ok=True)
 
     write_json(rows)
 
-    print("\nAll 4 documents + notices.json built in ./docs/")
+    print("\nPlacement documents + notices.json built in ./docs/")
 
 if __name__ == "__main__":
     main()

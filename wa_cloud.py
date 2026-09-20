@@ -200,6 +200,40 @@ def send(message, headless=True, timeout_ms=30000):
         ctx.close()
 
 
+def send_file(path, caption="", headless=True, timeout_ms=40000):
+    """Sends a file (PDF etc.) as a document to the personal self-DM, with an
+    optional caption. Attach menu -> Document -> file chooser -> preview ->
+    Send. The file is sent as a document (not a compressed photo)."""
+    if not MY_NUMBER:
+        raise RuntimeError("WA_NUMBER not set")
+    path = str(Path(path).resolve())
+    with sync_playwright() as p:
+        ctx = _launch(p, headless)
+        page = ctx.pages[0] if ctx.pages else ctx.new_page()
+        page.goto(f"https://web.whatsapp.com/send?phone={MY_NUMBER}", timeout=timeout_ms)
+        page.wait_for_selector('div[contenteditable="true"][aria-label^="Type a message" i]', timeout=timeout_ms)
+        page.wait_for_timeout(1500)
+        page.get_by_role("button", name="Attach").first.click(timeout=timeout_ms)
+        page.wait_for_timeout(800)
+        with page.expect_file_chooser(timeout=timeout_ms) as fc:
+            page.get_by_text("Document", exact=True).first.click(timeout=timeout_ms)
+        fc.value.set_files(path)
+        page.wait_for_timeout(2500)
+        if caption:
+            cap = page.locator('div[contenteditable="true"][aria-label*="caption" i], div[contenteditable="true"][aria-label^="Add a caption" i]').first
+            try:
+                cap.click(timeout=5000)
+                page.keyboard.insert_text(caption)
+            except Exception:
+                pass
+        try:
+            page.get_by_role("button", name="Send", exact=True).last.click(timeout=8000, force=True)
+        except Exception:
+            page.keyboard.press("Enter")
+        page.wait_for_timeout(5000)
+        ctx.close()
+
+
 def _find_chat_listitem(page, chat_name, timeout_s=15):
     """Polls the currently-rendered list of chat rows for one whose text
     starts with chat_name (list items also carry a trailing timestamp/last-

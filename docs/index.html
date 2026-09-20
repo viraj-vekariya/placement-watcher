@@ -47,11 +47,11 @@ button.refresh svg{width:13px;height:13px}
 button.refresh.spin svg{animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
 .stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 12px;box-shadow:var(--shadow)}
 .stat .n{font-family:"IBM Plex Mono";font-size:20px;font-weight:500;color:var(--accent);font-variant-numeric:tabular-nums}
 .stat .l{font-size:10.5px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
-@media (max-width:480px){.stats{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:480px){.stats{grid-template-columns:repeat(3,1fr)}}
 
 .tabs{display:flex;gap:4px;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:4px;margin-bottom:10px;overflow-x:auto}
 .tab{flex:1 0 auto;text-align:center;font:600 12.5px "IBM Plex Sans";color:var(--text-dim);padding:7px 10px;border-radius:7px;cursor:pointer;white-space:nowrap;background:transparent;border:none}
@@ -79,7 +79,7 @@ input.search:focus{outline:2px solid var(--accent);outline-offset:-1px}
 .body.open{max-height:none}
 .body:not(.open)::after{content:"";position:absolute;bottom:0;left:0;right:0;height:34px;background:linear-gradient(transparent,var(--surface))}
 .more{margin-top:6px;font:600 12px "IBM Plex Sans";color:var(--accent);background:none;border:none;cursor:pointer;padding:0}
-.dl{margin-top:8px;font-size:12px;display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:6px}
+.dl{text-decoration:none;margin-top:8px;font-size:12px;display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:6px}
 .dl.yes{background:var(--good-bg);color:var(--good)}
 .dl.no{background:var(--surface-2);color:var(--text-dim)}
 
@@ -120,7 +120,7 @@ footer a{color:var(--accent)}
 <button class="loadmore" id="loadMore" hidden>Show more</button>
 
 <footer>
-  Data auto-scraped hourly from the IIT KGP ERP CDC Notice board.<br>
+  Placement notices auto-scraped hourly from the IIT KGP ERP CDC Notice board.<br>
   Source: <a href="./notices.json" target="_blank" rel="noopener">notices.json</a>
   on <a href="https://github.com/viraj-vekariya/placement-watcher" target="_blank" rel="noopener">placement-watcher</a>
 </footer>
@@ -131,12 +131,10 @@ footer a{color:var(--accent)}
   var DATA_URL = "./notices.json";
   var PAGE_SIZE = 40;
   var TABS = [
-    {key:"all", label:"All"},
     {key:"placement", label:"Placement"},
-    {key:"placement_no_ppo", label:"No PPO"},
-    {key:"top10_internships", label:"Top 10 Internships"}
+    {key:"placement_no_ppo", label:"No PPO"}
   ];
-  var state = { data:null, tab:"all", query:"", shown:PAGE_SIZE, lastSeenId:0 };
+  var state = { data:null, tab:"placement", query:"", shown:PAGE_SIZE, lastSeenId:0 };
 
   function esc(s){
     return String(s==null?"":s).replace(/[&<>"']/g,function(c){
@@ -175,8 +173,8 @@ footer a{color:var(--accent)}
   function renderStats(){
     var s = state.data.stats;
     var tiles = [
-      ["Total", s.total], ["Placement", s.placement],
-      ["Internship", s.internship], ["Excl. PPO", s.placement_no_ppo]
+      ["Placement", s.placement], ["Excl. PPO", s.placement_no_ppo],
+      ["Files saved", s.with_files]
     ];
     document.getElementById("stats").innerHTML = tiles.map(function(t){
       return '<div class="stat"><div class="n">'+t[1]+'</div><div class="l">'+esc(t[0])+'</div></div>';
@@ -219,10 +217,10 @@ footer a{color:var(--accent)}
                  (isNew ? '<span class="badge new">New</span>' : '') +
                  (isToday(r.noticeat) ? '<span class="badge subj" style="background:var(--info-bg);color:var(--info)">Today</span>' : '');
     var dl = "";
-    if(typeof r.has_download === "boolean"){
-      dl = r.has_download
-        ? '<div class="dl yes">&#128206; File attached &mdash; use the Download button on the ERP</div>'
-        : '<div class="dl no">No file attached</div>';
+    if(r.file){
+      dl = '<a class="dl yes" href="'+esc(r.file)+'" target="_blank" rel="noopener">&#128206; Download attached file (PDF)</a>';
+    } else if(r.has_download){
+      dl = '<div class="dl no">Attachment listed on ERP &mdash; file not available (ERP served an empty file)</div>';
     }
     return '<div class="card" data-id="'+esc(r.id)+'">' +
       '<div class="hd"><div class="badges">'+badges+'</div><div class="time">'+esc(r.noticeat)+'</div></div>' +

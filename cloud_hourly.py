@@ -16,7 +16,7 @@ from zoneinfo import ZoneInfo
 
 BASE = Path(__file__).resolve().parent
 sys.path.insert(0, str(BASE))
-import login, build_docs, wa_cloud
+import login, build_docs, wa_cloud, attachments
 from extract_notices_playwright import fetch as extract_notices
 
 SESSION_FILE = BASE / "session_cookie.txt"
@@ -33,6 +33,7 @@ WA_GROUP = os.environ.get("WA_GROUP_NAME", "CDC Updates")  # dedicated group,
                                                             # keeps placement
                                                             # noise out of the
                                                             # personal self-DM
+SITE_URL = "https://viraj-vekariya.github.io/placement-watcher/"
 IST = ZoneInfo("Asia/Kolkata")  # the GitHub Actions runner's clock is UTC --
                                 # every timestamp must convert explicitly or
                                 # messages silently show UTC as if it were IST
@@ -117,6 +118,13 @@ def run_is_due():
     return gap_min >= MIN_GAP_MINUTES
 
 
+def last_run_time():
+    try:
+        return datetime.datetime.fromisoformat(json.loads(LAST_RUN_FILE.read_text())["last_success"])
+    except Exception:
+        return None
+
+
 def mark_run_complete():
     LAST_RUN_FILE.write_text(json.dumps({
         "last_success": datetime.datetime.now(datetime.timezone.utc).isoformat()
@@ -140,7 +148,9 @@ def main():
     log(f"fetched {len(raw)} total notices")
 
     seen = set(json.loads(SEEN_FILE.read_text())) if SEEN_FILE.exists() else set()
-    new_rows = [r for r in raw if r["id"] not in seen]
+    # placement notices only (internships deliberately dropped per request);
+    # seen-tracking still covers every id so old internships never resurface.
+    new_rows = [r for r in raw if r["id"] not in seen and r["type"] == "PLACEMENT"]
 
     cache_rows = [{
         "id": r["id"], "type": r["type"], "subject": r["subject"], "company": r["company"],
@@ -148,24 +158,49 @@ def main():
         "download_raw": "<a href='#'>Download</a>" if r.get("hasDownload") else "",
     } for r in raw]
     CACHE.write_text(json.dumps(cache_rows, indent=1))
+    placement_rows = [r for r in cache_rows if r["type"] == "PLACEMENT"]
+    files = attachments.sync(cookie, placement_rows)
+    log(f"attachments: {len(files)} file(s) captured, "
+        f"{sum(1 for r in placement_rows if r['download_raw'])} placement notice(s) list a Download")
     build_docs.main()
     log(f"documents rebuilt ({len(cache_rows)} total rows)")
 
     SEEN_FILE.write_text(json.dumps(sorted({r["id"] for r in raw}, key=lambda x: int(x) if x.isdigit() else 0)))
 
-    log(f"cycle complete -- {len(new_rows)} new notice(s) this hour" if new_rows else "cycle complete -- no new notices this hour")
+    log(f"cycle complete -- {len(new_rows)} new placement notice(s) this hour" if new_rows else "cycle complete -- no new placement notices this hour")
+    prev_run = last_run_time()
     mark_run_complete()
 
-    # user wants the FULL notice text pasted, one WhatsApp message per new
-    # notice (not a truncated company/subject summary) -- and the exact
-    # fixed phrase "No CDC update for now." when nothing new came in.
+    # FULL notice text per new placement notice, then the ERP attachment (if
+    # the ERP actually served one), always with the website link. When
+    # nothing new: an explicit window line so the silence is visibly checked.
     if new_rows:
         for r in new_rows:
-            header = f"[{r['type']}] {r['company'] or '(no company / general notice)'} ({r['subject']})"
-            msg = f"{header}\n\n{reflow(r['notice'])}"
-            notify_all(msg)
+            header = f"[PLACEMENT] {r['company'] or '(no company / general notice)'} ({r['subject']})"
+            body = reflow(r["notice"])
+            listed = bool(r.get("hasDownload"))
+            fpath = files.get(r["id"])
+            if fpath:
+                note = "\n\n\U0001F4CE Attachment sent below."
+            elif listed:
+                note = ("\n\n\U0001F4CE ERP lists an attachment for this notice but served "
+                        "an empty file - open Download on the ERP notice board.")
+            else:
+                note = ""
+            notify_all(f"{header}\n\n{body}{note}\n\n\U0001F310 {SITE_URL}")
+            if fpath:
+                try:
+                    wa_cloud.send_file(fpath, caption=f"{r['company']} - attachment")
+                    log(f"WhatsApp attachment sent for notice {r['id']}")
+                except Exception as e:
+                    log(f"WhatsApp attachment send failed for {r['id']} (non-fatal): {e}")
     else:
-        notify_all("No CDC update for now.")
+        end = datetime.datetime.now(IST).strftime("%I:%M %p")
+        if prev_run:
+            start = prev_run.astimezone(IST).strftime("%I:%M %p")
+            notify_all(f"No CDC update from {start} to {end} IST.\n\n\U0001F310 {SITE_URL}")
+        else:
+            notify_all(f"No CDC update for now ({end} IST).\n\n\U0001F310 {SITE_URL}")
 
 
 if __name__ == "__main__":
