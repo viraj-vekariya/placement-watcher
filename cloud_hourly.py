@@ -183,8 +183,8 @@ def main():
             if fpath:
                 note = "\n\n\U0001F4CE Attachment sent below."
             elif listed:
-                note = ("\n\n\U0001F4CE ERP lists an attachment for this notice but served "
-                        "an empty file - open Download on the ERP notice board.")
+                note = ("\n\n\U0001F4CE ERP lists an attachment for this notice but it could not "
+                        "be downloaded automatically - open Download on the ERP notice board.")
             else:
                 note = ""
             notify_all(f"{header}\n\n{body}{note}\n\n\U0001F310 {SITE_URL}")
