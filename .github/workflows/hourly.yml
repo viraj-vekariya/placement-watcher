@@ -1,16 +1,20 @@
 name: Hourly CDC watcher
 on:
-  # No native `schedule:` trigger -- GitHub's own scheduler proved
-  # unreliable for this repo beyond just occasional drift (confirmed: a
-  # full 5+ hour stretch with ZERO scheduled runs despite a 15-min cron,
-  # workflow verified active, cron syntax verified correct). Scheduling is
-  # now handled entirely by an external cron (cron-job.org) calling this
-  # workflow's dispatch API endpoint once an hour -- that bypasses GitHub's
-  # scheduler infrastructure completely. Keeping a native `schedule:` here
-  # too would risk it firing close to the external trigger and causing two
-  # near-simultaneous ERP logins (which trips ERP's own anti-automation
-  # throttle) -- so this is workflow_dispatch-only by design.
-  workflow_dispatch: {}
+  # Redundant triggers: cron-job.org (external, POSTs the dispatch API), GitHub's
+  # own schedule (unreliable on its own -- it once went silent for 5+ hours --
+  # but free extra chances) and a launchd job on the user's Mac that runs
+  # `gh workflow run`. ANY of them may fire late, twice, or never; the "gate"
+  # step (gate.py) lets a real cycle -- an ERP login -- run only if the last
+  # success was 50+ min ago and the last attempt 25+ min ago, so redundancy
+  # never means extra logins. Manual runs: `gh workflow run ... -f force=true`.
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Run now even if a cycle ran recently (manual testing only)"
+        type: boolean
+        default: false
+  schedule:
+    - cron: '7,22,37,52 * * * *'
 permissions:
   contents: write
 concurrency:
@@ -25,24 +29,8 @@ jobs:
       - name: Check if a run is actually due
         id: gate
         env:
-          EVENT_NAME: ${{ github.event_name }}
-        run: |
-          python3 - <<'PYEOF'
-          import json, datetime, os
-          due = True
-          try:
-              with open("last_run.json") as f:
-                  last = datetime.datetime.fromisoformat(json.load(f)["last_success"])
-              gap_min = (datetime.datetime.now(datetime.timezone.utc) - last).total_seconds() / 60
-              due = gap_min >= 50
-          except Exception:
-              due = True
-          force = os.environ.get("EVENT_NAME") == "workflow_dispatch"
-          should_run = due or force
-          print(f"due={due} force={force} should_run={should_run}")
-          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
-              f.write(f"should_run={'true' if should_run else 'false'}\n")
-          PYEOF
+          FORCE_RUN: ${{ inputs.force }}
+        run: python3 gate.py
       - uses: actions/setup-python@v5
         if: steps.gate.outputs.should_run == 'true'
         with:
@@ -70,7 +58,7 @@ jobs:
           APP_PW: ${{ secrets.APP_PW }}
           SECURITY_ANSWERS: ${{ secrets.SECURITY_ANSWERS }}
           WA_NUMBER: ${{ secrets.WA_NUMBER }}
-          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          FORCE_RUN: ${{ inputs.force }}
         run: python3 cloud_hourly.py
       - name: Re-encrypt WhatsApp session (may have refreshed tokens)
         if: steps.gate.outputs.should_run == 'true' && always()
@@ -90,4 +78,6 @@ jobs:
           git config user.email "actions@users.noreply.github.com"
           git add wa_profile.tar.gz.enc seen_notice_ids.json docs/ last_run.json 2>/dev/null || true
           git commit -m "chore: hourly update $(date -u +%Y-%m-%dT%H:%M:%SZ)" || echo "nothing to commit"
-          git push
+          # unattended-safe: someone may have pushed meanwhile; rebase then push, retry once
+          git pull --rebase -q || true
+          git push || (sleep 5 && git pull --rebase -q && git push)
