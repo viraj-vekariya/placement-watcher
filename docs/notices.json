@@ -1,9 +1,9 @@
 {
- "last_updated": "2026-09-21T02:04:42Z",
+ "last_updated": "2026-09-21T02:11:25Z",
  "stats": {
   "placement": 112,
   "internship": 736,
-  "with_files": 28,
+  "with_files": 53,
   "listed_downloads": 168
  },
  "categories": {
@@ -1827,7 +1827,8 @@
     "company": "SIEMENS",
     "notice": "PFA the extended interview shortlist for Siemens.\n\nFurther details would be communicated to the shortlisted candidates shortly.\n\nCDC, IIT Kharagpur",
     "noticeat": "27-08-2026 15:08",
-    "has_download": true
+    "has_download": true,
+    "file": "files/782.pdf"
    },
    {
     "id": "780",
@@ -1908,7 +1909,8 @@
     "company": "KPMG",
     "notice": "PFA the Test shortlist for KPMG.\n\nFurther details would be communicated to the shortlisted students shortly.\n\nCDC, IIT Kharagpur",
     "noticeat": "26-08-2026 13:52",
-    "has_download": true
+    "has_download": true,
+    "file": "files/771.pdf"
    },
    {
     "id": "770",
@@ -2025,7 +2027,8 @@
     "company": "SIEMENS",
     "notice": "PFA the interview shortlist for Siemens.\n\nFurther details would be communicated to the shortlisted candidates shortly.\n\nPOC : Devansh(+91 7999892181), Neev(+91 9001346350)\n\nCDC, IIT Kharagpur",
     "noticeat": "23-08-2026 12:42",
-    "has_download": true
+    "has_download": true,
+    "file": "files/751.pdf"
    },
    {
     "id": "750",
@@ -2034,7 +2037,8 @@
     "company": "AMEX",
     "notice": "PFA the interview shortlist for AMEX.\n\nFurther details would be communicated to the shortlisted candidates shortly.\n\nPOC : Deepak(+91 9024950269), Khush(+91 9922168000)\n\nCDC, IIT Kharagpur",
     "noticeat": "22-08-2026 19:58",
-    "has_download": true
+    "has_download": true,
+    "file": "files/750.pdf"
    },
    {
     "id": "749",
@@ -2079,7 +2083,8 @@
     "company": "Windflow",
     "notice": "PFA the interview shortlist of Windflow for 6 Month onsite Internship.\n\nCDC, IIT Kharagpur",
     "noticeat": "22-08-2026 10:03",
-    "has_download": true
+    "has_download": true,
+    "file": "files/745.pdf"
    },
    {
     "id": "743",
@@ -2088,7 +2093,8 @@
     "company": "Eternal",
     "notice": "PFA the shortlist of Eternal for all the roles.\n\nCDC, IIT Kharagpur",
     "noticeat": "22-08-2026 03:31",
-    "has_download": true
+    "has_download": true,
+    "file": "files/743.pdf"
    },
    {
     "id": "740",
@@ -2133,7 +2139,8 @@
     "company": "ICICI BANK",
     "notice": "PFA the interview shortlist for ICICI Bank.\n\nFurther details would be communicated to the shortlisted candidates shortly.\n\nCDC, IIT Kharagpur",
     "noticeat": "21-08-2026 18:54",
-    "has_download": true
+    "has_download": true,
+    "file": "files/736.pdf"
    },
    {
     "id": "733",
@@ -2178,7 +2185,8 @@
     "company": "AMERICAN EXPRESS",
     "notice": "PFA the test shortlist for the Assessment of American Express - Software Engineering Role, scheduled from 10:00 PM onwards on 20th August 2026.\n\nVenue: Your respective locationsThe test is of 1.5 hours and must be ended by 11:59 PM, 20th August 2026\n\nPOC: Aditya (+91 6295-916930), Neev (+91 90013 46350)\n\nCDC, IIT Kharagpur",
     "noticeat": "20-08-2026 21:20",
-    "has_download": true
+    "has_download": true,
+    "file": "files/728.pdf"
    },
    {
     "id": "727",
@@ -2196,7 +2204,8 @@
     "company": "ETERNAL",
     "notice": "PFA the room allocation for the Online Assessment of Eternal, scheduled from 8:00 PM onwards on 20th August 2026.\n\nVenue: Nalanda Classroom ComplexStudents are requested to report 15 minutes prior to the reporting time.\n\nPOC: Devansh (+91 79998 92181), Neev (+91 90013 46350)\n\nCDC, IIT Kharagpur",
     "noticeat": "20-08-2026 19:08",
-    "has_download": true
+    "has_download": true,
+    "file": "files/726.pdf"
    },
    {
     "id": "724",
@@ -2205,7 +2214,8 @@
     "company": "ETERNAL",
     "notice": "PFA the test shortlist for the Assessment of Eternal, scheduled from 8:00 PM onwards on 20th August 2026.\n\nVenue: Nalanda Classroom ComplexStudents are requested to report 15 minutes prior to the reporting time.\n\nPOC: Devansh (+91 79998 92181), Neev (+91 90013 46350)\n\nCDC, IIT Kharagpur",
     "noticeat": "20-08-2026 17:40",
-    "has_download": true
+    "has_download": true,
+    "file": "files/724.pdf"
    },
    {
     "id": "723",
@@ -2232,7 +2242,8 @@
     "company": "Barclays",
     "notice": "PFA the interview shortlist for Barclays.\n\nThe Interviews are scheduled from 6:00 PM, 20th August, 2026, at the Nalanda Classroom Complex. The exact venue and timings will be shared with the shortlisted candidates shortly.\n\nCDC, IIT Kharagpur",
     "noticeat": "20-08-2026 12:40",
-    "has_download": true
+    "has_download": true,
+    "file": "files/717.pdf"
    },
    {
     "id": "716",
@@ -2259,7 +2270,8 @@
     "company": "ICICI Bank",
     "notice": "PFA the revised shortlist for the Test of ICICI Bank.\n\nThe Online Assessment is scheduled from 19th August, 11:30 P.\n\nM.\n\nVenue: Respective Location\n\nNote: The assessment link has been shared with all the shortlisted students. All the shortlisted students are requested to start the assesment sharp at 11:30 P.\n\nM.\n\nPOC: Aditya Ghosh (+91 6295916930), Anurag (+91 9491087133) \n\nCDC, IIT Kharagpur",
     "noticeat": "19-08-2026 22:35",
-    "has_download": true
+    "has_download": true,
+    "file": "files/714.pdf"
    },
    {
     "id": "713",
@@ -2268,7 +2280,8 @@
     "company": "NATION WITH NAMO",
     "notice": "PFA the room allocation for the Assessment of Nation with NaMo, scheduled from 09:30 PM onwards on 19th August 2026.\n\nNote: Students will receive the test link on their CDC registered email address\n\nVenue: Nalanda Classroom ComplexStudents are requested to arrive 15 minutes prior to the reporting time.\n\nPOC: Bhavy (+91 7597121669), Aryan (+91 8100303122)\n\nCDC, IIT Kharagpur",
     "noticeat": "19-08-2026 19:47",
-    "has_download": true
+    "has_download": true,
+    "file": "files/713.pdf"
    },
    {
     "id": "711",
@@ -2367,7 +2380,8 @@
     "company": "Day_4 Internship Offers 2026-27",
     "notice": "PFA the result of Day 4 of Internship 2026-27.\n\nThose who have got single offer, that offer will be treated as deemed accepted.\n\nCDC, IIT Kharagpur",
     "noticeat": "17-08-2026 18:04",
-    "has_download": true
+    "has_download": true,
+    "file": "files/687.pdf"
    },
    {
     "id": "686",
@@ -2421,7 +2435,8 @@
     "company": "Multiple Companies",
     "notice": "PFA the interview shortlist for the following companies for the respective roles.\n\nLAT AerospaceFlipkartTower Research CapitalThe Interviews for the above mentioned companies will begin from 6:30 PM, 17th August, 2026, at the Nalanda Classroom Complex. The exact venue and timings will be shared with the shortlisted candidates shortly.\n\nCDC, IIT Kharagpur",
     "noticeat": "17-08-2026 00:17",
-    "has_download": true
+    "has_download": true,
+    "file": "files/667.pdf"
    },
    {
     "id": "666",
@@ -2448,7 +2463,8 @@
     "company": "Teesta Investments",
     "notice": "PFA the interview shortlist of Teesta Investments for 6 months internship.\n\nCDC, IIT Kharagpur",
     "noticeat": "15-08-2026 23:04",
-    "has_download": true
+    "has_download": true,
+    "file": "files/664.pdf"
    },
    {
     "id": "663",
@@ -2457,7 +2473,8 @@
     "company": "INTRADAY for 16th August",
     "notice": "PFA the INTRADAY for 16th August.\n\nCDC, IIT Kharagpur",
     "noticeat": "15-08-2026 22:36",
-    "has_download": true
+    "has_download": true,
+    "file": "files/663.pdf"
    },
    {
     "id": "662",
@@ -2466,7 +2483,8 @@
     "company": "Multiple Companies",
     "notice": "PFA the shortlist for the following companies for the respective roles :NoBrokerZscalerCohesity\n\nCDC, IIT Kharagpur",
     "noticeat": "15-08-2026 22:31",
-    "has_download": true
+    "has_download": true,
+    "file": "files/662.pdf"
    },
    {
     "id": "661",
@@ -2475,7 +2493,8 @@
     "company": "NAVI",
     "notice": "PFA the interview shortlist of NAVI for INFOSEC role.\n\nThe interview will be conducted on 15th August 2026 from 3:00 PM onwards. Reporting room: NR 221\n\nCDC, IIT Kharagpur",
     "noticeat": "15-08-2026 14:26",
-    "has_download": true
+    "has_download": true,
+    "file": "files/661.pdf"
    },
    {
     "id": "660",
@@ -2484,7 +2503,8 @@
     "company": "INTRADAY for 15th August",
     "notice": "PFA the INTRADAY for 15th August.\n\nCDC, IIT Kharagpur",
     "noticeat": "15-08-2026 00:43",
-    "has_download": true
+    "has_download": true,
+    "file": "files/660.pdf"
    },
    {
     "id": "659",
@@ -2493,7 +2513,8 @@
     "company": "TEXAS INSTRUMENTS",
     "notice": "PFA the room allocation for the Online Assessment of Texas Instruments, scheduled from 10:30 PM onwards on 14th August 2026.\n\nNote: Only students who have successfully registered on the portal will be allowed to appear for the test.\n\nStudents are requested to report 15 minutes prior to the reporting time.\n\nPOC: Khush (+91 9922168000), Keshav (+91 7710038569)\n\nCDC, IIT Kharagpur",
     "noticeat": "14-08-2026 20:10",
-    "has_download": true
+    "has_download": true,
+    "file": "files/659.pdf"
    },
    {
     "id": "658",
@@ -2502,7 +2523,8 @@
     "company": "Multiple Companies",
     "notice": "PFA the shortlist for the following companies for the respective roles :InsurityReckittFundwave\n\nCDC, IIT Kharagpur",
     "noticeat": "14-08-2026 19:53",
-    "has_download": true
+    "has_download": true,
+    "file": "files/658.pdf"
    },
    {
     "id": "657",
@@ -2655,7 +2677,8 @@
     "company": "Application for Departmental Representative_2026-27",
     "notice": "Kind attn:APPLICATION FORM OF DEPARTMENTAL REPRESENTATIVE FOR CDC 2026-27A hardcopy letter is being send today to all the Department/ School/ Centre regarding the selection of Departmental Representative of CDC for the year 2026-27======================Students who are interested for the position of Departmental Representative are advised to contact their Department / School / Centre office, Faculty Advisor, In Charge (T&P) or HoD -office for more information.\n\nFORM COPY IS ALSO ATTACHED=======================Last date to receive the names from the department/ school/ centre to CDC is 24th August 2026, 6:00 PM.========================CDC, IITKharagpur",
     "noticeat": "12-08-2026 18:57",
-    "has_download": true
+    "has_download": true,
+    "file": "files/630.pdf"
    },
    {
     "id": "626",
@@ -2718,7 +2741,8 @@
     "company": "FUNDWAVE",
     "notice": "PFA the shortlist for the Test of Fundwave.\n\nThe Online Assessment is scheduled from 11th August, 9:00 P.\n\nM. and ends at 10:30 P.\n\nM.\n\nVenue: Respective Location\n\nNote: The assessment link will be shared with all the shortlisted students. All the shortlisted students are requested to start the assesment sharp at 9:00 P.\n\nM.\n\nInstructions: Don't use any sort of AI, and copy-pasting will plague your test. Please read and follow the instructions carefully. For Full Stack Development, there are two tests available, but you have to attempt only one.\n\nPOC: Bhavy (7597121669)\n\nCDC, IIT Kharagpur",
     "noticeat": "11-08-2026 18:21",
-    "has_download": true
+    "has_download": true,
+    "file": "files/617.pdf"
    },
    {
     "id": "615",
@@ -2745,7 +2769,8 @@
     "company": "LINKEDIN",
     "notice": "PFA the test shortlist for LINKEDIN.\n\nVenue: NR 121Students are required to carry their original Institute ID card/Medical Book, failing which students will not be permitted to sit for test.\n\nStudents are also advised to reach the venue 15 minutes prior to the time.\n\nPlease carry your laptops, pens, and papers.\n\nPOC: Aryan (8100303122), Khush (9922168000)\n\nCDC, IIT Kharagpur",
     "noticeat": "11-08-2026 16:37",
-    "has_download": true
+    "has_download": true,
+    "file": "files/613.pdf"
    },
    {
     "id": "611",
