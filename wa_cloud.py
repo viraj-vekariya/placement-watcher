@@ -242,7 +242,16 @@ def send(message, headless=True, timeout_ms=30000):
         ctx = _launch(p, headless)
         page = ctx.pages[0] if ctx.pages else ctx.new_page()
         page.goto(url, timeout=timeout_ms)
-        box = page.wait_for_selector('div[contenteditable="true"][aria-label^="Type a message" i]', timeout=timeout_ms)
+        # A Locator, not an ElementHandle from wait_for_selector: WhatsApp Web
+        # can re-render the compose box in the few seconds it takes the real
+        # multi-device socket to come up (confirmed live 21 Sep 2026, cloud
+        # run against the freshly re-linked session -- an ElementHandle taken
+        # before that settle-wait went stale and box.click() below raised
+        # "Element is not attached to the DOM"). A Locator re-queries the DOM
+        # on every action instead of holding a handle to a specific node, so
+        # it survives that re-render.
+        box = page.locator('div[contenteditable="true"][aria-label^="Type a message" i]')
+        box.wait_for(state="visible", timeout=timeout_ms)
         page.wait_for_timeout(3000)  # let the socket to the phone settle, not just the DOM render
 
         def diag():
@@ -375,7 +384,11 @@ def send_to_chat(message, chat_name, headless=True, timeout_ms=30000):
         page.get_by_role("button", name="Send", exact=True).click(timeout=timeout_ms)
         page.wait_for_timeout(2500)
 
-        box = page.wait_for_selector('div[contenteditable="true"][aria-label^="Type a message" i]', timeout=timeout_ms)
+        # Locator, not an ElementHandle -- see the matching comment in send()
+        # for why (a re-render between locating and clicking detaches an
+        # ElementHandle taken via wait_for_selector).
+        box = page.locator('div[contenteditable="true"][aria-label^="Type a message" i]')
+        box.wait_for(state="visible", timeout=timeout_ms)
         box.click(timeout=timeout_ms)
         page.keyboard.press("Enter")
         page.wait_for_timeout(1500)
