@@ -183,6 +183,46 @@ def setup_with_phone_code(timeout_s=480):
         return ok
 
 
+def _confirm_last_sent(page, timeout_ms=8000):
+    """Confirms the message we just sent actually left the client, using
+    selectors VERIFIED live on 21 Sep 2026 against the current WhatsApp Web
+    DOM (the earlier div.message-out / data-icon=msg-check selectors are
+    stale -- WhatsApp has since restructured to CSS-module class names and
+    moved the tick status into an <svg><title> rather than data-icon).
+    Every real message has data-pre-plain-text (unlike the aria-label="You:"
+    span, which WhatsApp only stamps on the first message of a consecutive
+    group -- checking for it caused a false-negative on every message after
+    the first in a run). div[role="row"] is the wrong container to take
+    .last from -- WhatsApp virtualizes this list and the trailing row(s) at
+    any given moment can be an empty addon/placeholder row with no message
+    in it at all, not the newest message -- so target actual message
+    containers directly via [data-testid^="conv-msg-"] instead.
+    send()/send_file() only ever target the "Message yourself" self-chat, so
+    every message is outgoing by definition; the only thing left to confirm
+    is that the last message's status icon <title> is one of WhatsApp's own
+    design-system tick names: wds-ic-check (sent), wds-ic-double-check
+    (delivered), wds-ic-read (read). Any of the three is real confirmation,
+    not just a rendered draft."""
+    msgs = page.locator('[data-testid^="conv-msg-"]')
+    end = time.time() + timeout_ms / 1000
+    while time.time() < end:
+        n = msgs.count()
+        if n > 0:
+            last = msgs.nth(n - 1)
+            try:
+                # SVG <title> elements have no innerText (all_inner_texts()
+                # silently returns None for each -- verified live 21 Sep
+                # 2026), so textContent via all_text_contents() is required.
+                titles = last.locator("title").all_text_contents()
+                if any((t or "").strip().startswith(("wds-ic-check", "wds-ic-double-check", "wds-ic-read"))
+                       for t in titles):
+                    return True
+            except Exception:
+                pass
+        page.wait_for_timeout(500)
+    return False
+
+
 def send(message, headless=True, timeout_ms=30000):
     """Sends to the personal self-chat and VERIFIES it actually went out --
     a cold headless profile can render the compose box from cached local
@@ -219,9 +259,9 @@ def send(message, headless=True, timeout_ms=30000):
             except Exception:
                 d["conv_panel_present"] = "<err>"
             try:
-                d["msg_out_count"] = page.locator("div.message-out").count()
+                d["outgoing_row_count"] = page.locator('div[role="row"] span[aria-label="You:"]').count()
             except Exception:
-                d["msg_out_count"] = "<err>"
+                d["outgoing_row_count"] = "<err>"
             try:
                 d["body_snippet"] = page.evaluate("document.body.innerText")[:400]
             except Exception:
@@ -238,15 +278,7 @@ def send(message, headless=True, timeout_ms=30000):
         page.keyboard.press("Enter")
         page.wait_for_timeout(2500)
 
-        sent_ok = False
-        try:
-            last_out = page.locator("div.message-out").last
-            last_out.wait_for(timeout=6000)
-            sent_ok = last_out.locator(
-                'span[data-icon="msg-check"], span[data-icon="msg-dblcheck"], span[data-icon="msg-dblcheck-ack"]'
-            ).count() > 0
-        except Exception:
-            pass
+        sent_ok = _confirm_last_sent(page, timeout_ms=8000)
         if not sent_ok:
             info = diag()
             ctx.close()
@@ -290,15 +322,7 @@ def send_file(path, caption="", headless=True, timeout_ms=40000):
             page.keyboard.press("Enter")
         page.wait_for_timeout(5000)
 
-        sent_ok = False
-        try:
-            last_out = page.locator("div.message-out").last
-            last_out.wait_for(timeout=8000)
-            sent_ok = last_out.locator(
-                'span[data-icon="msg-check"], span[data-icon="msg-dblcheck"], span[data-icon="msg-dblcheck-ack"]'
-            ).count() > 0
-        except Exception:
-            pass
+        sent_ok = _confirm_last_sent(page, timeout_ms=10000)
         ctx.close()
         if not sent_ok:
             raise RuntimeError("could not confirm a sent/delivered tick after sending the file")
