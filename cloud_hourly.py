@@ -144,9 +144,13 @@ def main():
     log(f"fetched {len(raw)} total notices")
 
     seen = set(json.loads(SEEN_FILE.read_text())) if SEEN_FILE.exists() else set()
-    # placement notices only (internships deliberately dropped per request);
-    # seen-tracking still covers every id so old internships never resurface.
-    new_rows = [r for r in raw if r["id"] not in seen and r["type"] == "PLACEMENT"]
+    # WhatsApp stays placement-only, and excludes PPO specifically (21 Sep
+    # 2026 request) -- the website/PDFs below get EVERYTHING (placement +
+    # internship, PPO included) since that split now lives client-side on
+    # the site's own subject filter instead of at the alerting layer.
+    # seen-tracking still covers every id so nothing wrongly resurfaces.
+    new_rows = [r for r in raw if r["id"] not in seen and r["type"] == "PLACEMENT"
+                and (r.get("subject") or "").upper() != "PPO"]
 
     cache_rows = [{
         "id": r["id"], "type": r["type"], "subject": r["subject"], "company": r["company"],
@@ -154,10 +158,11 @@ def main():
         "download_raw": "<a href='#'>Download</a>" if r.get("hasDownload") else "",
     } for r in raw]
     CACHE.write_text(json.dumps(cache_rows, indent=1))
-    placement_rows = [r for r in cache_rows if r["type"] == "PLACEMENT"]
-    files = attachments.sync(cookie, placement_rows, log)
+    # attachments for EVERY notice (placement + internship) -- the site now
+    # shows both categories with their real files, not placement-only.
+    files = attachments.sync(cookie, cache_rows, log)
     log(f"attachments: {len(files)} file(s) captured, "
-        f"{sum(1 for r in placement_rows if r['download_raw'])} placement notice(s) list a Download")
+        f"{sum(1 for r in cache_rows if r['download_raw'])} notice(s) list a Download")
     build_docs.main()
     log(f"documents rebuilt ({len(cache_rows)} total rows)")
 
@@ -165,7 +170,7 @@ def main():
     login.logout(cookie)
     log("ERP session closed")
 
-    log(f"cycle complete -- {len(new_rows)} new placement notice(s) this hour" if new_rows else "cycle complete -- no new placement notices this hour")
+    log(f"cycle complete -- {len(new_rows)} new placement notice(s) (excl. PPO) this hour" if new_rows else "cycle complete -- no new non-PPO placement notices this hour")
     prev_run = gate.last_success()
     gate.record_success()
 

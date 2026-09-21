@@ -58,10 +58,14 @@ button.refresh.spin svg{animation:spin .8s linear infinite}
 .tab[aria-selected="true"]{background:var(--surface);color:var(--accent);box-shadow:var(--shadow)}
 .tab .cnt{opacity:.7;font-family:"IBM Plex Mono";margin-left:3px}
 
-.searchwrap{position:relative;margin-bottom:16px}
+.searchwrap{position:relative;margin-bottom:10px}
 input.search{width:100%;font:14px "IBM Plex Sans";padding:10px 12px 10px 34px;border-radius:9px;border:1px solid var(--border);background:var(--surface);color:var(--text)}
 input.search:focus{outline:2px solid var(--accent);outline-offset:-1px}
 .searchwrap svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--text-dim)}
+
+.subjectrow{margin-bottom:16px}
+select.subjectSelect{font:600 12.5px "IBM Plex Sans";color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:7px 10px;width:100%}
+select.subjectSelect:focus{outline:2px solid var(--accent);outline-offset:-1px}
 
 .list{display:flex;flex-direction:column;gap:10px}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:13px 15px;box-shadow:var(--shadow)}
@@ -115,12 +119,16 @@ footer a{color:var(--accent)}
   <input class="search" id="search" placeholder="Search by company or keyword&hellip;" autocomplete="off">
 </div>
 
+<div class="subjectrow">
+  <select class="subjectSelect" id="subjectFilter"></select>
+</div>
+
 <div id="errBox"></div>
 <div class="list" id="list"></div>
 <button class="loadmore" id="loadMore" hidden>Show more</button>
 
 <footer>
-  Placement notices auto-scraped hourly from the IIT KGP ERP CDC Notice board.<br>
+  Placement and internship notices auto-scraped hourly from the IIT KGP ERP CDC Notice board.<br>
   Source: <a href="./notices.json" target="_blank" rel="noopener">notices.json</a>
   on <a href="https://github.com/viraj-vekariya/placement-watcher" target="_blank" rel="noopener">placement-watcher</a>
 </footer>
@@ -132,9 +140,9 @@ footer a{color:var(--accent)}
   var PAGE_SIZE = 40;
   var TABS = [
     {key:"placement", label:"Placement"},
-    {key:"placement_no_ppo", label:"No PPO"}
+    {key:"internship", label:"Internship"}
   ];
-  var state = { data:null, tab:"placement", query:"", shown:PAGE_SIZE, lastSeenId:0 };
+  var state = { data:null, tab:"placement", query:"", subject:"", shown:PAGE_SIZE, lastSeenId:0 };
 
   function esc(s){
     return String(s==null?"":s).replace(/[&<>"']/g,function(c){
@@ -173,7 +181,7 @@ footer a{color:var(--accent)}
   function renderStats(){
     var s = state.data.stats;
     var tiles = [
-      ["Placement", s.placement], ["Excl. PPO", s.placement_no_ppo],
+      ["Placement", s.placement], ["Internship", s.internship],
       ["Files saved", s.with_files]
     ];
     document.getElementById("stats").innerHTML = tiles.map(function(t){
@@ -192,14 +200,39 @@ footer a{color:var(--accent)}
     Array.prototype.forEach.call(el.querySelectorAll(".tab"), function(btn){
       btn.addEventListener("click", function(){
         state.tab = btn.getAttribute("data-tab");
+        state.subject = "";
         state.shown = PAGE_SIZE;
-        renderTabs(); renderList();
+        renderTabs(); renderSubjectFilter(); renderList();
       });
     });
   }
 
+  // Subject filter -- lets the site do what the old "No PPO" static PDF
+  // used to do (and more), client-side, within whichever tab is open, e.g.
+  // pick "PPO" to isolate it or leave "All subjects" to see everything.
+  function renderSubjectFilter(){
+    var rows = state.data.categories[state.tab] || [];
+    var subjects = [];
+    rows.forEach(function(r){
+      var s = r.subject || "";
+      if(s && subjects.indexOf(s) === -1) subjects.push(s);
+    });
+    subjects.sort();
+    var sel = document.getElementById("subjectFilter");
+    var opts = ['<option value="">All subjects</option>'].concat(
+      subjects.map(function(s){
+        return '<option value="'+esc(s)+'"'+(s===state.subject?' selected':'')+'>'+esc(s)+'</option>';
+      })
+    );
+    sel.innerHTML = opts.join("");
+    if(subjects.indexOf(state.subject) === -1) { state.subject = ""; sel.value = ""; }
+  }
+
   function filtered(){
     var rows = state.data.categories[state.tab] || [];
+    if(state.subject){
+      rows = rows.filter(function(r){ return (r.subject||"") === state.subject; });
+    }
     var q = state.query.trim().toLowerCase();
     if(!q) return rows;
     return rows.filter(function(r){
@@ -268,7 +301,7 @@ footer a{color:var(--accent)}
   }
 
   function renderAll(){
-    renderStats(); renderTabs(); renderList();
+    renderStats(); renderTabs(); renderSubjectFilter(); renderList();
   }
 
   function showError(msg){
@@ -303,6 +336,9 @@ footer a{color:var(--accent)}
     searchTimer = setTimeout(function(){
       state.query = v; state.shown = PAGE_SIZE; renderList();
     }, 150);
+  });
+  document.getElementById("subjectFilter").addEventListener("change", function(e){
+    state.subject = e.target.value; state.shown = PAGE_SIZE; renderList();
   });
 
   // skeleton while first load is in flight

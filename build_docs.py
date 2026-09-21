@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
-"""Builds the placement documents + website data from notices_cache.json:
-  2. PLACEMENT_ONLY     -- type == PLACEMENT
-  3. PLACEMENT_NO_PPO   -- type == PLACEMENT and subject != PPO
-plus docs/notices.json (placement only). Internship notices are deliberately
-excluded everywhere. PDFs are rendered with Playwright's bundled Chromium
-(page.pdf()), which works identically on macOS and the Ubuntu CI runner.
+"""Builds the placement+internship documents + website data from
+notices_cache.json:
+  2. PLACEMENT_ONLY      -- type == PLACEMENT
+  3. INTERNSHIP_ONLY     -- type == INTERNSHIP
+plus docs/notices.json (both categories, each row carries its `subject` so
+the website can filter within a category -- e.g. exclude PPO -- without
+needing a separate static PPO-excluded document). PDFs are rendered with
+Playwright's bundled Chromium (page.pdf()), which works identically on
+macOS and the Ubuntu CI runner.
 """
 import html, json, re, sys
 from pathlib import Path
@@ -85,10 +88,13 @@ def write_and_pdf(browser_page, name, title, subtitle, rows, show_download=False
 
 def write_json(rows):
     """Writes docs/notices.json -- the data source for the website dashboard.
-    PLACEMENT notices only (internships deliberately excluded per request).
-    A notice gets a `file` path when its ERP attachment was actually captured
-    into docs/files/ (see attachments.py); `has_download` alone only means the
-    ERP lists a Download link for it."""
+    Both PLACEMENT and INTERNSHIP notices are included (per 21 Sep 2026
+    request: website shows everything, WhatsApp stays placement-only). Each
+    slim row keeps its `subject` so the site can filter within a category
+    (e.g. hide PPO) client-side instead of needing a separate static
+    PPO-excluded document. A notice gets a `file` path when its ERP
+    attachment was actually captured into docs/files/ (see attachments.py);
+    `has_download` alone only means the ERP lists a Download link for it."""
     import datetime
     def key(r): return int(r["id"]) if str(r["id"]).isdigit() else 0
     def slim(r):
@@ -101,43 +107,45 @@ def write_json(rows):
         return out
 
     placement = sorted([r for r in rows if r["type"] == "PLACEMENT"], key=key, reverse=True)
-    placement_no_ppo = [r for r in placement if r["subject"].upper() != "PPO"]
+    internship = sorted([r for r in rows if r["type"] == "INTERNSHIP"], key=key, reverse=True)
     p_slim = [slim(r) for r in placement]
+    i_slim = [slim(r) for r in internship]
+    all_slim = p_slim + i_slim
     data = {
         "last_updated": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "stats": {
-            "placement": len(placement), "placement_no_ppo": len(placement_no_ppo),
-            "with_files": sum(1 for x in p_slim if "file" in x),
-            "listed_downloads": sum(1 for x in p_slim if x["has_download"]),
+            "placement": len(placement), "internship": len(internship),
+            "with_files": sum(1 for x in all_slim if "file" in x),
+            "listed_downloads": sum(1 for x in all_slim if x["has_download"]),
         },
         "categories": {
             "placement": p_slim,
-            "placement_no_ppo": [slim(r) for r in placement_no_ppo],
+            "internship": i_slim,
         },
     }
     (DOCS / "notices.json").write_text(json.dumps(data, indent=1))
-    print(f"  wrote notices.json ({len(placement)} placement rows)")
+    print(f"  wrote notices.json ({len(placement)} placement, {len(internship)} internship rows)")
 
 def main():
     rows = load()
     print(f"loaded {len(rows)} cached rows\n")
 
     placement = [r for r in rows if r["type"] == "PLACEMENT"]
-    placement_no_ppo = [r for r in placement if r["subject"].upper() != "PPO"]
+    internship = [r for r in rows if r["type"] == "INTERNSHIP"]
 
     with sync_playwright() as p:
         browser = p.chromium.launch()
         browser_page = browser.new_page()
         write_and_pdf(browser_page, "2_PLACEMENT_ONLY", "Placement Notices (all subjects)", f"Type = PLACEMENT only -- {len(placement)} rows.", placement, show_download=True)
-        write_and_pdf(browser_page, "3_PLACEMENT_NO_PPO", "Placement Notices (excluding PPO)", f"Type = PLACEMENT, Subject != PPO -- {len(placement_no_ppo)} rows.", placement_no_ppo, show_download=True)
+        write_and_pdf(browser_page, "3_INTERNSHIP_ONLY", "Internship Notices (all subjects)", f"Type = INTERNSHIP only -- {len(internship)} rows.", internship, show_download=True)
         browser.close()
-    for stale in ("1_ALL_NOTICES", "4_TOP10_INTERNSHIPS"):
+    for stale in ("1_ALL_NOTICES", "3_PLACEMENT_NO_PPO", "4_TOP10_INTERNSHIPS"):
         for ext in ("html", "pdf"):
             (DOCS / f"{stale}.{ext}").unlink(missing_ok=True)
 
     write_json(rows)
 
-    print("\nPlacement documents + notices.json built in ./docs/")
+    print("\nPlacement + internship documents + notices.json built in ./docs/")
 
 if __name__ == "__main__":
     main()
