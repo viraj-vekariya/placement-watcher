@@ -1,13 +1,22 @@
 {
- "last_updated": "2026-09-22T05:46:41Z",
+ "last_updated": "2026-09-22T06:46:42Z",
  "stats": {
-  "placement": 114,
+  "placement": 115,
   "internship": 737,
   "with_files": 166,
   "listed_downloads": 169
  },
  "categories": {
   "placement": [
+   {
+    "id": "914",
+    "type": "PLACEMENT",
+    "subject": "PPO",
+    "company": "Vedanta Limited (VLDP)",
+    "notice": "Vedanta Limited (VLDP) has extended the offer to the following student(s):BHUKYA GANESH - 23CH10019SAMEERA JENNA - 23EE10060PUSHPENDRA SINGH - 22EE38012RAKSHA GUPTA - 23ME10066ABINASH BARMAN - 22ME36010SHREYANSH MISHRA - 22ME31030SHIKHAR CHANDRA - 23MT10052KETHAVATH ARUN - 22MT30019MANASH SHIT - 22MT3EP20ROHIT KUMAR SAHOO - 23MI10038KURRA SRINIVAS - 22MI31013SHREYANSH YADAV - 22GG23013The students are advised to give offer acceptance by 22.09.26.(For more details, check your email ID.)\n\nCDC, IIT Kharagpur",
+    "noticeat": "22-09-2026 11:23",
+    "has_download": false
+   },
    {
     "id": "913",
     "type": "PLACEMENT",
