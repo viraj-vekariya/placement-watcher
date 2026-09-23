@@ -1,13 +1,22 @@
 {
- "last_updated": "2026-09-23T04:49:04Z",
+ "last_updated": "2026-09-23T06:36:42Z",
  "stats": {
-  "placement": 116,
+  "placement": 117,
   "internship": 738,
   "with_files": 166,
   "listed_downloads": 169
  },
  "categories": {
   "placement": [
+   {
+    "id": "917",
+    "type": "PLACEMENT",
+    "subject": "Urgent",
+    "company": "CV verification for placement",
+    "notice": "If any student is unable to come as per his/her allotted slot, they may visit the CDC office between 10AM to 5.30PM as per their convenience, till 30th September, 2026.\n\nCDC, IIT Kharagpur",
+    "noticeat": "23-09-2026 10:58",
+    "has_download": false
+   },
    {
     "id": "916",
     "type": "PLACEMENT",
