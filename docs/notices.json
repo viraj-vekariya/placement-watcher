@@ -1,13 +1,22 @@
 {
- "last_updated": "2026-09-23T01:19:06Z",
+ "last_updated": "2026-09-23T02:49:25Z",
  "stats": {
-  "placement": 115,
+  "placement": 116,
   "internship": 738,
   "with_files": 166,
   "listed_downloads": 169
  },
  "categories": {
   "placement": [
+   {
+    "id": "916",
+    "type": "PLACEMENT",
+    "subject": "PPT/Workshop/Seminars etc",
+    "company": "ACCENTURE AEH",
+    "notice": "Please note that the Pre Placement Talk for ACCENTURE AEH will be held on 25th Sep 2026 from 5:30 PM to 6:30 PM.\n\nAll students are required to register on the link below to attend the PPT.\n\nRegistration \n\nLink: https://event.on24.com/wcc/r/5489985/55BAD5F5BD2A58A4DB210ECE2B3F\n788BOnly students who have registered will be eligible to attend the PPT and participate for the further process. All interested and eligible students are supposed to attend without fail. Attendance is compulsory. Students should join 15 minutes prior to the meeting time.\n\nPOC: Khush (+91 99221 68000), Arpita (+91 90755 64147)\n\nCDC, IIT Kharagpur",
+    "noticeat": "22-09-2026 22:25",
+    "has_download": false
+   },
    {
     "id": "914",
     "type": "PLACEMENT",
