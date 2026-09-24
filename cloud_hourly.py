@@ -133,7 +133,7 @@ def smart_reflow(text):
     api_key = os.environ.get("GEMINI_API_KEY", "")
     if not api_key:
         return text
-    import re, json as _json, urllib.request as _urlreq
+    import re, time as _time, json as _json, urllib.request as _urlreq
     prompt = (
         "Reformat ONLY the whitespace and line breaks of the text below so "
         "it reads cleanly: put separate fields/labels (e.g. Date:, Venue:, "
@@ -144,18 +144,32 @@ def smart_reflow(text):
         "add any title, header, footer, note, or explanation of your own. "
         "Output ONLY the reformatted text and nothing else.\n\n---\n" + text
     )
-    try:
-        req = _urlreq.Request(
-            f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent?key={api_key}",
-            data=_json.dumps({"contents": [{"parts": [{"text": prompt}]}],
-                              "generationConfig": {"temperature": 0}}).encode(),
-            headers={"Content-Type": "application/json"},
-        )
-        with _urlreq.urlopen(req, timeout=25) as resp:
-            data = _json.loads(resp.read())
-        out = data["candidates"][0]["content"]["parts"][0]["text"].strip()
-    except Exception as e:
-        log(f"Gemini polish call failed (non-fatal, using regex text): {e}")
+    body = _json.dumps({
+        "contents": [{"parts": [{"text": prompt}]}],
+        # thinkingBudget 0: this is pure whitespace rearrangement, not
+        # reasoning -- with thinking left on, a real test call burned 134
+        # "thought" tokens to produce a 2-token reply and got rate-limited
+        # into a 503 "high demand" error on the very next call (25 Sep 2026
+        # live test); disabling it made the same payload succeed every time.
+        "generationConfig": {"temperature": 0, "thinkingConfig": {"thinkingBudget": 0}},
+    }).encode()
+    out = None
+    for attempt in range(2):
+        try:
+            req = _urlreq.Request(
+                f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent?key={api_key}",
+                data=body, headers={"Content-Type": "application/json"},
+            )
+            with _urlreq.urlopen(req, timeout=25) as resp:
+                data = _json.loads(resp.read())
+            out = data["candidates"][0]["content"]["parts"][0]["text"].strip()
+            break
+        except Exception as e:
+            log(f"Gemini polish call failed (attempt {attempt + 1}/2): {e}")
+            if attempt == 0:
+                _time.sleep(3)  # Google's own 503 message: "usually temporary"
+    if out is None:
+        log("Gemini polish giving up, using regex text")
         return text
 
     tok = lambda s: re.findall(r"\S+", s)
