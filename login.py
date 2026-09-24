@@ -68,6 +68,28 @@ def _wait_new_otp(baseline, timeout=90):
         time.sleep(4)
     return None
 
+def _delete_otp_emails(verbose=False):
+    """Clears every OTP mail from the inbox once the login cycle is done, so the
+    account never accumulates OTP clutter (they're single-use and worthless
+    afterwards)."""
+    try:
+        M = imaplib.IMAP4_SSL("imap.gmail.com", timeout=25)
+        try:
+            M.login(GMAIL, APP_PW)
+            M.select("INBOX")
+            typ, d = M.search(None, "FROM", OTP_SENDER)
+            ids = d[0].split()
+            for i in ids:
+                M.store(i, "+FLAGS", "\\Deleted")
+            if ids:
+                M.expunge()
+            if verbose: print("7) OTP emails deleted:", len(ids))
+        finally:
+            try: M.logout()
+            except Exception: pass
+    except Exception as e:
+        if verbose: print("OTP cleanup failed (non-fatal):", e)
+
 def login(verbose=False):
     if not (USER and PW and GMAIL and APP_PW and ANSWERS):
         if verbose: print("missing required env vars -- see module docstring")
@@ -105,7 +127,9 @@ def login(verbose=False):
             flat = lambda t: re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", re.sub(r"(?s)<(script|style).*?</\1>", " ", t))).strip()
             print("   auth.htm:", a.status_code, "|", flat(a.text)[:200])
             print("   home.htm:", flat(h)[:200])
+        _delete_otp_emails(verbose)
         return None
+    _delete_otp_emails(verbose)
     return "; ".join(f"{c.name}={c.value}" for c in s.cookies)
 
 def logout(cookie):
