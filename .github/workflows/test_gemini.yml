@@ -33,7 +33,7 @@ jobs:
               print('attempt', attempt)
               req = urllib.request.Request(
                   'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=' + key,
-                  data=json.dumps({'contents': [{'parts': [{'text': prompt}]}], 'generationConfig': {'temperature': 0}}).encode(),
+                  data=json.dumps({'contents': [{'parts': [{'text': prompt}]}], 'generationConfig': {'temperature': 0, 'thinkingConfig': {'thinkingBudget': 0}}}).encode(),
                   headers={'Content-Type': 'application/json'},
               )
               try:
