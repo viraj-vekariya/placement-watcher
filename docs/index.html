@@ -149,6 +149,18 @@ footer a{color:var(--accent)}
       return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
     });
   }
+  function linkify(s){
+    // esc() first so a stray "<"/"&" in the notice text can't break the markup,
+    // then wrap URLs in the already-escaped string -- an escaped "&" (from a
+    // query string) still matches and lands correctly inside href since HTML
+    // attribute values need it escaped the same way
+    return esc(s).replace(/https?:\/\/[^\s<]+/g, function(u){
+      var trail = "";
+      var m = u.match(/[.,;:!?)\]]+$/);
+      if(m){ trail = m[0]; u = u.slice(0, -trail.length); }
+      return '<a href="'+u+'" target="_blank" rel="noopener">'+u+'</a>'+trail;
+    });
+  }
   function safeStore(fn,fallback){ try{ return fn(); }catch(e){ return fallback; } }
 
   function loadLastSeen(){
@@ -258,7 +270,7 @@ footer a{color:var(--accent)}
     return '<div class="card" data-id="'+esc(r.id)+'">' +
       '<div class="hd"><div class="badges">'+badges+'</div><div class="time">'+esc(r.noticeat)+'</div></div>' +
       '<div class="co'+(r.company?'':' empty')+'">'+esc(r.company||"General notice (no company)")+'</div>' +
-      '<div class="body">'+esc(r.notice)+'</div>' +
+      '<div class="body">'+linkify(r.notice)+'</div>' +
       '<button class="more">Show more</button>' +
       dl +
     '</div>';
