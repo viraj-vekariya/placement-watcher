@@ -108,9 +108,12 @@ def reflow(text):
     return text
 
 
-GEMINI_MODEL = "gemini-3.8-flash"  # confirmed via a live API call 25 Sep 2026 --
-                                    # gemini-2.5-flash returned 404 "no longer
-                                    # available to new users, use gemini-3.8-flash"
+GEMINI_MODEL = "gemini-flash-latest"  # confirmed via live API calls 25 Sep 2026 --
+                                    # gemini-2.5-flash is deprecated (404, points
+                                    # to gemini-3.8-flash); gemini-3.8-flash itself
+                                    # returns 503 "high demand" under real load,
+                                    # while this rolling alias (same underlying
+                                    # model per modelVersion in the response) does not
 
 
 def smart_reflow(text):
