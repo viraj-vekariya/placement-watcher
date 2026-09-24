@@ -1,8 +1,8 @@
 {
- "last_updated": "2026-09-24T10:14:45Z",
+ "last_updated": "2026-09-24T11:14:38Z",
  "stats": {
   "placement": 117,
-  "internship": 740,
+  "internship": 741,
   "with_files": 167,
   "listed_downloads": 170
  },
@@ -1067,6 +1067,15 @@
    }
   ],
   "internship": [
+   {
+    "id": "920",
+    "type": "INTERNSHIP",
+    "subject": "CV Submission",
+    "company": "Internship Opportunities",
+    "notice": "Opportunities from Tech Japan inc. are mentioned below. Interested students are advised to apply accordingly.\n\nNote: Those students who have not received internship through CDC are only supposed to apply.\n\nPrior to applying for these internship opportunities, it requires registration.\n\nRegistration link: https://hub.techjapan.work/register------------------------------------------------------------------Dai Nippon Printing Co., Ltd.\n\nDai Nippon Printing Co., Ltd. (DNP) is a leading company in the printing and information industry, dedicated to creating new value for a sustainable and enriched society. With a vision to connect people and society, DNP focuses on innovation through its P&I (Printing & Information) strengths. The company has a rich history dating back to 1876, and it continues to evolve by embracing digital transformation and sustainability initiatives. DNP aims to address social challenges and enhance the quality of life through its diverse range of products and services. The company is committed to ethical practices and transparency, ensuring that it meets the expectations of its stakeholders. DNP operates globally, with a strong presence in various markets, and is recognized for its contributions to technology and culture. As it approaches its 150th anniversary in 2026, DNP remains focused on its mission to create a better future for all.1: Internship Details Application deadline: Oct 1st (Thu), 2026 Internship duration: 60 Days Internship: Engineering Track&#65288;Automotive Embedded Device Development for Enhanced Vehicle Security and Convenience&#65289; https://hub.techjapan.work/student/internships/vAkCkhD25GgR8rdEbJzk4G Location of Internship: Tokyo, Japan Provision for PPO(Full-time offer): Yes2: Internship Details Application deadline: Oct 1st (Thu), 2026 Internship duration: 60 Days Internship: Engineering Track&#65288;R&D of CO&#8322; Separation and Capture Technologies for Achieving Carbon Neutrality&#65289; https://hub.techjapan.work/student/internships/ouy5wwRoXBA8Eszwrwmk7H Location of Internship: TBA Provision for PPO(Full-time offer): Yes-------------------------------------------------------------------\n\nCDC, IIT Kharagpur",
+    "noticeat": "24-09-2026 15:49",
+    "has_download": false
+   },
    {
     "id": "919",
     "type": "INTERNSHIP",
