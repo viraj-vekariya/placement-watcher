@@ -11,7 +11,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: Install deps
-        run: pip install requests
+        run: pip install requests playwright
       - name: Test smart_reflow against real notice text
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
