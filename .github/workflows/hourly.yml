@@ -65,19 +65,43 @@ jobs:
         env:
           WA_PROFILE_KEY: ${{ secrets.WA_PROFILE_KEY }}
         run: |
+          # trim every regenerable Chromium cache dir -- the profile grows
+          # unbounded run over run (each hourly send adds to WhatsApp Web's
+          # own IndexedDB/cache) and hit GitHub's 100MB file limit on 24 Sep
+          # 2026, which silently blocked the site/PDF commit below too since
+          # they used to ship in the same commit (see "Commit site/state").
+          # None of these dirs hold auth state -- only Cookies/Local
+          # Storage/IndexedDB (untouched) do.
           rm -rf wa_profile/Default/"Code Cache" wa_profile/Default/Cache \
-                 wa_profile/Default/GPUCache wa_profile/Default/DawnWebGPUCache \
-                 wa_profile/Default/DawnGraphiteCache wa_profile/GraphiteDawnCache 2>/dev/null || true
+                 wa_profile/Default/"Cache Data" wa_profile/Default/GPUCache \
+                 wa_profile/Default/DawnWebGPUCache wa_profile/Default/DawnGraphiteCache \
+                 wa_profile/Default/GrShaderCache wa_profile/Default/ShaderCache \
+                 wa_profile/Default/"Service Worker/CacheStorage" \
+                 wa_profile/Default/"Service Worker/ScriptCache" \
+                 wa_profile/Default/blob_storage \
+                 wa_profile/GraphiteDawnCache wa_profile/component_crx_cache \
+                 wa_profile/GrShaderCache wa_profile/ShaderCache \
+                 wa_profile/Crashpad 2>/dev/null || true
           tar -czf wa_profile.tar.gz -C wa_profile .
           openssl enc -aes-256-cbc -pbkdf2 -salt -in wa_profile.tar.gz -out wa_profile.tar.gz.enc -pass env:WA_PROFILE_KEY
           rm -f wa_profile.tar.gz
-      - name: Commit updated state
+          echo "encrypted WhatsApp session size: $(du -h wa_profile.tar.gz.enc | cut -f1)"
+      - name: Commit + push site/state (never blocked by the WhatsApp session)
         if: steps.gate.outputs.should_run == 'true' && always()
         run: |
           git config user.name "placement-watcher-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add wa_profile.tar.gz.enc seen_notice_ids.json docs/ last_run.json 2>/dev/null || true
+          git add seen_notice_ids.json docs/ last_run.json 2>/dev/null || true
           git commit -m "chore: hourly update $(date -u +%Y-%m-%dT%H:%M:%SZ)" || echo "nothing to commit"
           # unattended-safe: someone may have pushed meanwhile; rebase then push, retry once
           git pull --rebase -q || true
           git push || (sleep 5 && git pull --rebase -q && git push)
+      - name: Commit + push WhatsApp session (best-effort, kept separate on
+          purpose -- an oversized/rejected session commit must never hold
+          back the site/state commit above)
+        if: steps.gate.outputs.should_run == 'true' && always()
+        run: |
+          git add wa_profile.tar.gz.enc 2>/dev/null || true
+          git commit -m "chore: re-encrypted WhatsApp session $(date -u +%Y-%m-%dT%H:%M:%SZ)" || echo "nothing to commit"
+          git pull --rebase -q || true
+          git push || (sleep 5 && git pull --rebase -q && git push) || echo "::warning::WhatsApp session push failed (likely still >100MB) -- next run reuses the last committed session, non-fatal"
