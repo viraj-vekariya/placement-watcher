@@ -12,6 +12,25 @@ jobs:
           python-version: '3.12'
       - name: Install deps
         run: pip install requests playwright
+      - name: Diagnose -- full 429 body
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          python3 -c "
+          import os, json, urllib.request, urllib.error
+          key = os.environ['GEMINI_API_KEY']
+          req = urllib.request.Request(
+              'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=' + key,
+              data=json.dumps({'contents': [{'parts': [{'text': 'hi'}]}], 'generationConfig': {'thinkingConfig': {'thinkingBudget': 0}}}).encode(),
+              headers={'Content-Type': 'application/json'},
+          )
+          try:
+              with urllib.request.urlopen(req, timeout=25) as resp:
+                  print('SUCCESS:', json.loads(resp.read()))
+          except urllib.error.HTTPError as e:
+              print('CODE:', e.code, e.reason)
+              print('BODY:', e.read().decode(errors='replace'))
+          "
       - name: Test smart_reflow against real notice text
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
