@@ -58,6 +58,7 @@ jobs:
           APP_PW: ${{ secrets.APP_PW }}
           SECURITY_ANSWERS: ${{ secrets.SECURITY_ANSWERS }}
           WA_NUMBER: ${{ secrets.WA_NUMBER }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           FORCE_RUN: ${{ inputs.force }}
         run: python3 cloud_hourly.py
       - name: Re-encrypt WhatsApp session (may have refreshed tokens)
