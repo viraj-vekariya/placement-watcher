@@ -108,6 +108,61 @@ def reflow(text):
     return text
 
 
+GEMINI_MODEL = "gemini-3.8-flash"  # confirmed via a live API call 25 Sep 2026 --
+                                    # gemini-2.5-flash returned 404 "no longer
+                                    # available to new users, use gemini-3.8-flash"
+
+
+def smart_reflow(text):
+    """25 Sep 2026: reflow()'s regex only fixes glue patterns it already
+    knows the literal wording of (e.g. "Venue:", "Batch One") -- a notice
+    using any other label/list style glues right back together and needs a
+    code change every time. This optional second pass asks Gemini to fix
+    layout it can *recognize* rather than just literally match, on top of
+    reflow()'s already-decent output.
+
+    Verified word-for-word against reflow()'s own output before use: tokens
+    (whitespace-split) must match exactly, in order. If Gemini drops, adds,
+    reorders, mistranslates, or alters even one token -- or the call fails,
+    times out, or GEMINI_API_KEY isn't set -- this silently returns the
+    plain regex text unchanged. A Gemini glitch can only ever affect *where
+    the line breaks fall*, never what reaches WhatsApp/email/website."""
+    api_key = os.environ.get("GEMINI_API_KEY", "")
+    if not api_key:
+        return text
+    import re, json as _json, urllib.request as _urlreq
+    prompt = (
+        "Reformat ONLY the whitespace and line breaks of the text below so "
+        "it reads cleanly: put separate fields/labels (e.g. Date:, Venue:, "
+        "Time:, batch/session names), separate list entries, and links each "
+        "on their own line, with a blank line between distinct sections. Do "
+        "not change, add, remove, reorder, translate, abbreviate, or "
+        "rephrase a single word or character of the actual content. Do not "
+        "add any title, header, footer, note, or explanation of your own. "
+        "Output ONLY the reformatted text and nothing else.\n\n---\n" + text
+    )
+    try:
+        req = _urlreq.Request(
+            f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent?key={api_key}",
+            data=_json.dumps({"contents": [{"parts": [{"text": prompt}]}],
+                              "generationConfig": {"temperature": 0}}).encode(),
+            headers={"Content-Type": "application/json"},
+        )
+        with _urlreq.urlopen(req, timeout=25) as resp:
+            data = _json.loads(resp.read())
+        out = data["candidates"][0]["content"]["parts"][0]["text"].strip()
+    except Exception as e:
+        log(f"Gemini polish call failed (non-fatal, using regex text): {e}")
+        return text
+
+    tok = lambda s: re.findall(r"\S+", s)
+    if tok(out) != tok(text):
+        log("Gemini polish REJECTED -- token mismatch vs regex text, using regex text")
+        return text
+    log("Gemini polish applied")
+    return out
+
+
 def email_fallback(subject, message):
     """WhatsApp Web on a headless runner can fail in ways that look like
     success (see wa_cloud.send's docstring, 21 Sep 2026) -- when it now
@@ -212,9 +267,16 @@ def main():
     new_rows = [r for r in raw if r["id"] not in seen and r["type"] == "PLACEMENT"
                 and (r.get("subject") or "").upper() != "PPO"]
 
+    # Gemini-polish only the freshly-arriving notices (typically 0-5/hour) so
+    # the WhatsApp/email text and the website show identical, better-
+    # formatted text for anything a user might currently see as new --
+    # running this on all ~859 rows every run would blow the 15-min job
+    # timeout and any API quota for no benefit (nobody's re-reading old ones).
+    smart_text = {r["id"]: smart_reflow(reflow(r["notice"])) for r in new_rows}
+
     cache_rows = [{
         "id": r["id"], "type": r["type"], "subject": r["subject"], "company": r["company"],
-        "notice": reflow(r["notice"]), "noticeat": r["noticeat"],
+        "notice": smart_text.get(r["id"]) or reflow(r["notice"]), "noticeat": r["noticeat"],
         "download_raw": "<a href='#'>Download</a>" if r.get("hasDownload") else "",
     } for r in raw]
     CACHE.write_text(json.dumps(cache_rows, indent=1))
@@ -240,7 +302,7 @@ def main():
     if new_rows:
         for r in new_rows:
             header = f"[PLACEMENT] {r['company'] or '(no company / general notice)'} ({r['subject']})"
-            body = reflow(r["notice"])
+            body = smart_text.get(r["id"]) or reflow(r["notice"])
             listed = bool(r.get("hasDownload"))
             fpath = files.get(r["id"])
             if fpath:
