@@ -1,13 +1,22 @@
 {
- "last_updated": "2026-09-24T16:10:46Z",
+ "last_updated": "2026-09-24T19:31:12Z",
  "stats": {
-  "placement": 117,
+  "placement": 118,
   "internship": 741,
   "with_files": 167,
   "listed_downloads": 170
  },
  "categories": {
   "placement": [
+   {
+    "id": "921",
+    "type": "PLACEMENT",
+    "subject": "PPT/Workshop/Seminars etc",
+    "company": "IPIM",
+    "notice": "Please note that the IPIM Career Workshop will be conducted in two batches on 25th and 26th September 2026. Registered Students are requested to attend the sessions as per their allotted batch.\n\nBatch One (Morning)Session 1Date: Friday, 25th September 2026Reporting Time: 9:30 AM\n\nVenue: SN Bose AuditoriumSession 2Date: Saturday, 26th September 2026Reporting Time: 9:30 AM\n\nVenue: SN Bose AuditoriumBatch Two (Afternoon)Session 1Date: Friday, 25th September 2026Reporting Time: 2:30 PM\n\nVenue: SN Bose AuditoriumSession 2Date: Saturday, 26th September 2026Reporting Time: 2:30 PM\n\nVenue: SN Bose AuditoriumLate entries will not be permitted, in order to maintain the decorum and smooth conduct of the sessions.\n\nPlease note that attendance at all sessions is mandatory for eligibility for the mock interviews. For students who have not registered yet and have not been allotted a batch, please fill out the attached form. Sessions for these students will be conducted on later dates.\n\nForm Link : https://forms.gle/M8Rx3RSxGe2YQJmK9\n\nCDC, IIT Kharagpur",
+    "noticeat": "24-09-2026 21:56",
+    "has_download": false
+   },
    {
     "id": "917",
     "type": "PLACEMENT",
