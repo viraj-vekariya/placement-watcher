@@ -81,7 +81,9 @@ def get_session():
 def reflow(text):
     import re
     for m in ["Venue:", "Note:", "POC:", "Deadline:", "Important:", "Regards",
-              "CDC, IIT Kharagpur", "CDC,IIT Kharagpur", "Link:", "Test link"]:
+              "CDC, IIT Kharagpur", "CDC,IIT Kharagpur", "Link:", "Test link",
+              "Date:", "Reporting Time:", "Batch One", "Batch Two",
+              "Session 1", "Session 2"]:
         text = text.replace(m, "\n\n" + m)
     # split a URL from prose it's glued to with zero separator (source notice
     # HTML sometimes has no space between the link and the next sentence) --
@@ -93,7 +95,12 @@ def reflow(text):
     # newline mid-URL, breaking it on WhatsApp
     urls = []
     text = re.sub(r"https?://\S+", lambda m: urls.append(m.group(0)) or f"\x00URL{len(urls)-1}\x00", text)
-    text = re.sub(r"(\d{2}[A-Z][A-Z0-9]{6}) ?(?=\d)", r"\1\n", text)
+    # confirmed live 25 Sep 2026 (Vedanta PPO notice): source glues each
+    # "NAME - ROLLNO" entry straight onto the next name with no separator at
+    # all ("...23CH10019SAMEERA JENNA..."), not just onto another roll
+    # number -- so the split must fire whenever a roll number is followed by
+    # ANY glued alnum, not only a digit
+    text = re.sub(r"(\d{2}[A-Z][A-Z0-9]{6}) ?(?=[A-Z0-9])", r"\1\n", text)
     text = re.sub(r"([.!?])(?=[A-Z])", r"\1\n\n", text)
     text = re.sub(r"\n{3,}", "\n\n", text).strip()
     for i, u in enumerate(urls):
