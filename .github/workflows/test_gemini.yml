@@ -12,40 +12,6 @@ jobs:
           python-version: '3.12'
       - name: Install deps
         run: pip install requests playwright
-      - name: Diagnose -- exact smart_reflow payload shape, twice, with delay
-        env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: |
-          python3 -c "
-          import os, json, time, urllib.request, urllib.error
-          key = os.environ['GEMINI_API_KEY']
-          prompt = (
-              'Reformat ONLY the whitespace and line breaks of the text below so '
-              'it reads cleanly: put separate fields/labels (e.g. Date:, Venue:, '
-              'Time:, batch/session names), separate list entries, and links each '
-              'on their own line, with a blank line between distinct sections. Do '
-              'not change, add, remove, reorder, translate, abbreviate, or '
-              'rephrase a single word or character of the actual content. Do not '
-              'add any title, header, footer, note, or explanation of your own. '
-              'Output ONLY the reformatted text and nothing else.\n\n---\nBatch One (Morning)Session 1Date: Friday, 25th September 2026Reporting Time: 9:30 AM\n\nVenue: SN Bose AuditoriumLate entries will not be permitted.'
-          )
-          for attempt in range(2):
-              print('attempt', attempt)
-              req = urllib.request.Request(
-                  'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=' + key,
-                  data=json.dumps({'contents': [{'parts': [{'text': prompt}]}], 'generationConfig': {'temperature': 0, 'thinkingConfig': {'thinkingBudget': 0}}}).encode(),
-                  headers={'Content-Type': 'application/json'},
-              )
-              try:
-                  with urllib.request.urlopen(req, timeout=25) as resp:
-                      data = json.loads(resp.read())
-                  print('SUCCESS:', data['candidates'][0]['content']['parts'][0]['text'])
-              except urllib.error.HTTPError as e:
-                  print('HTTPError', e.code, e.reason, '-', e.read().decode(errors='replace'))
-              except Exception as e:
-                  print('other error:', repr(e))
-              time.sleep(15)
-          "
       - name: Test smart_reflow against real notice text
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
