@@ -12,6 +12,29 @@ jobs:
           python-version: '3.12'
       - name: Install deps
         run: pip install requests playwright
+      - name: Diagnose -- list available Gemini models + raw error body
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          python3 -c "
+          import os, json, urllib.request, urllib.error
+          key = os.environ['GEMINI_API_KEY']
+          try:
+              with urllib.request.urlopen(
+                  'https://generativelanguage.googleapis.com/v1beta/models?key=' + key, timeout=25
+              ) as resp:
+                  data = json.loads(resp.read())
+              names = [m['name'] for m in data.get('models', [])
+                       if 'generateContent' in m.get('supportedGenerationMethods', [])]
+              print('MODELS SUPPORTING generateContent:')
+              for n in sorted(names):
+                  print(' ', n)
+          except urllib.error.HTTPError as e:
+              print('ListModels HTTPError', e.code, e.reason)
+              print(e.read().decode(errors='replace'))
+          except Exception as e:
+              print('ListModels other error:', repr(e))
+          "
       - name: Test smart_reflow against real notice text
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
