@@ -26,6 +26,17 @@ WA_GROUP = os.environ.get("WA_GROUP_NAME", "CDC Updates")  # dedicated group,
                                                             # keeps placement
                                                             # noise out of the
                                                             # personal self-DM
+UPDATE_EMAIL = os.environ.get("UPDATE_EMAIL", "viraj.vp.iitkgp@gmail.com")  # 24
+                                                            # Sep 2026 trial: a
+                                                            # dedicated inbox
+                                                            # that mirrors
+                                                            # every WhatsApp
+                                                            # update (WhatsApp
+                                                            # itself is
+                                                            # unchanged) -- run
+                                                            # both a few days,
+                                                            # then decide which
+                                                            # channel to rely on
 SITE_URL = "https://viraj-vekariya.github.io/placement-watcher/"
 IST = ZoneInfo("Asia/Kolkata")  # the GitHub Actions runner's clock is UTC --
                                 # every timestamp must convert explicitly or
@@ -72,10 +83,22 @@ def reflow(text):
     for m in ["Venue:", "Note:", "POC:", "Deadline:", "Important:", "Regards",
               "CDC, IIT Kharagpur", "CDC,IIT Kharagpur", "Link:", "Test link"]:
         text = text.replace(m, "\n\n" + m)
-    text = re.sub(r"(\d{2}[A-Z][A-Z0-9]{6}) ?(?=\d)", r"\1\n", text)
+    # split a URL from prose it's glued to with zero separator (source notice
+    # HTML sometimes has no space between the link and the next sentence) --
+    # must run BEFORE the URL is stashed below, while it's still intact
     text = re.sub(r"(https?://\S+?)([A-Z][a-z]+ [a-z])", r"\1\n\n\2", text)
+    # stash URLs so no later regex can dice one up -- confirmed live 24 Sep
+    # 2026 (Accenture AEH notice): the roll-number splitter below matched a
+    # 9-char chunk *inside* an on24.com link's hex token and inserted a
+    # newline mid-URL, breaking it on WhatsApp
+    urls = []
+    text = re.sub(r"https?://\S+", lambda m: urls.append(m.group(0)) or f"\x00URL{len(urls)-1}\x00", text)
+    text = re.sub(r"(\d{2}[A-Z][A-Z0-9]{6}) ?(?=\d)", r"\1\n", text)
     text = re.sub(r"([.!?])(?=[A-Z])", r"\1\n\n", text)
-    return re.sub(r"\n{3,}", "\n\n", text).strip()
+    text = re.sub(r"\n{3,}", "\n\n", text).strip()
+    for i, u in enumerate(urls):
+        text = text.replace(f"\x00URL{i}\x00", u)
+    return text
 
 
 def email_fallback(subject, message):
@@ -104,7 +127,34 @@ def email_fallback(subject, message):
         log(f"fallback email ALSO failed: {e}")
 
 
-def notify_all(message):
+def send_update_email(subject, message, failed=False):
+    """24 Sep 2026 trial channel: mirrors every update that goes to WhatsApp
+    to a SEPARATE dedicated inbox (UPDATE_EMAIL), independent of whether
+    WhatsApp itself succeeds or fails -- explicit request to run both in
+    parallel for a couple of days, then decide which one to rely on
+    primarily. A failed WhatsApp send is tagged so it doesn't blend in with
+    a normal update. WhatsApp's own logic is untouched by this."""
+    gmail, app_pw = os.environ.get("GMAIL", ""), os.environ.get("APP_PW", "")
+    if not (gmail and app_pw and UPDATE_EMAIL):
+        return
+    try:
+        import smtplib
+        from email.mime.text import MIMEText
+        tag = "⚠ FAILED - " if failed else ""
+        msg = MIMEText(message)
+        msg["Subject"] = f"{tag}{subject}"
+        msg["From"] = gmail
+        msg["To"] = UPDATE_EMAIL
+        with smtplib.SMTP("smtp.gmail.com", 587, timeout=20) as s:
+            s.starttls()
+            s.login(gmail, app_pw)
+            s.send_message(msg)
+        log(f"update email sent to {UPDATE_EMAIL}")
+    except Exception as e:
+        log(f"update email failed: {e}")
+
+
+def notify_all(message, subject="CDC watcher update"):
     """Personal self-DM only -- the reliable, proven channel. The "CDC
     Updates" group send was tried as a second channel but is still flaky
     (WhatsApp-side sync glitches + UI timing issues), so it's been pulled
@@ -121,9 +171,11 @@ def notify_all(message):
     try:
         wa_cloud.send(message)
         log("WhatsApp sent to personal DM (delivery confirmed)")
+        send_update_email(subject, message, failed=False)
     except Exception as e:
         log(f"WhatsApp personal-DM send failed: {e}")
         email_fallback("CDC watcher -- WhatsApp failed, here's the update", f"{message}\n\n(WhatsApp error: {e})")
+        send_update_email(subject, f"{message}\n\n(WhatsApp error: {e})", failed=True)
 
 
 def main():
@@ -136,7 +188,8 @@ def main():
     cookie = get_session()
     if not cookie:
         log(f"login failed at {now_str} -- will retry next hour.")
-        notify_all(f"CDC watcher: login failed at {now_str} -- will retry next hour.")
+        notify_all(f"CDC watcher: login failed at {now_str} -- will retry next hour.",
+                   subject="CDC watcher: login failed")
         return
 
     log("extracting notice board via headless browser...")
@@ -190,7 +243,7 @@ def main():
                         "be downloaded automatically - open Download on the ERP notice board.")
             else:
                 note = ""
-            notify_all(f"{header}\n\n{body}{note}\n\n\U0001F310 {SITE_URL}")
+            notify_all(f"{header}\n\n{body}{note}\n\n\U0001F310 {SITE_URL}", subject=header)
             if fpath:
                 try:
                     wa_cloud.send_file(fpath, caption=f"{r['company']} - attachment")
@@ -201,9 +254,11 @@ def main():
         end = datetime.datetime.now(IST).strftime("%I:%M %p")
         if prev_run:
             start = prev_run.astimezone(IST).strftime("%I:%M %p")
-            notify_all(f"No CDC update from {start} to {end} IST.\n\n\U0001F310 {SITE_URL}")
+            notify_all(f"No CDC update from {start} to {end} IST.\n\n\U0001F310 {SITE_URL}",
+                       subject="CDC watcher: no update this hour")
         else:
-            notify_all(f"No CDC update for now ({end} IST).\n\n\U0001F310 {SITE_URL}")
+            notify_all(f"No CDC update for now ({end} IST).\n\n\U0001F310 {SITE_URL}",
+                       subject="CDC watcher: no update this hour")
 
 
 if __name__ == "__main__":
