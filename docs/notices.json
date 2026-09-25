@@ -1,13 +1,22 @@
 {
- "last_updated": "2026-09-25T12:01:07Z",
+ "last_updated": "2026-09-25T13:01:07Z",
  "stats": {
-  "placement": 123,
+  "placement": 124,
   "internship": 742,
   "with_files": 167,
   "listed_downloads": 170
  },
  "categories": {
   "placement": [
+   {
+    "id": "928",
+    "type": "PLACEMENT",
+    "subject": "PPO",
+    "company": "Google",
+    "notice": "Google India has extended the offer to the following student(s):MARALA SAI PRAGNAAN - 23CS10043\nCHIRADIP BISWAS - 22EC37004\nD V VENKATA JAYANTH KUMAR REDDY - 22CS30018\nGAURANG GUPTA - 22CS30025\nGONDHA DAMIYA MANISHKUMAR - 23CS10021\nThe students are advised to give offer acceptance by 26.09.26.(For more details, check your email ID.)\n\nCDC, IIT Kharagpur",
+    "noticeat": "25-09-2026 17:48",
+    "has_download": false
+   },
    {
     "id": "926",
     "type": "PLACEMENT",
