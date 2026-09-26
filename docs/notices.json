@@ -1,13 +1,22 @@
 {
- "last_updated": "2026-09-26T07:06:53Z",
+ "last_updated": "2026-09-26T09:14:27Z",
  "stats": {
-  "placement": 124,
+  "placement": 125,
   "internship": 742,
   "with_files": 167,
   "listed_downloads": 170
  },
  "categories": {
   "placement": [
+   {
+    "id": "930",
+    "type": "PLACEMENT",
+    "subject": "PPT/Workshop/Seminars etc",
+    "company": "WHITEOAK CAPITAL",
+    "notice": "Please note that the Pre-Placement Talk for WHITEOAK CAPITAL will be held on 27th September, 2026 from 12:00 PM.\n\nAll students must register for the PPT using the same link provided below.\n\nLink: https://whiteoakindia.zoom.us/w/89631101170?tk=cMakyo8ryxaUHYs2BEzLiPAyKAubSLg41yXxngplVLs.DQkAAAAU3m4Q8hZRc1gyS09nZlFCR2xheXpEMEZZRlVRAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWebinar ID: 896 3110 1170All interested students are required to attend the PPT without fail. Attendance is compulsory. Students should join 15 minutes prior to the meeting time.\n\nPOC: Bhavy (+91 75971 21669)\n\nCDC, IIT Kharagpur",
+    "noticeat": "26-09-2026 12:34",
+    "has_download": false
+   },
    {
     "id": "928",
     "type": "PLACEMENT",
